@@ -54,16 +54,19 @@ xlsx scheme
 The `excel` file consists of roughly 3 Parts:
 
 - Header with
-
    - Name
    - Month
    - Overview
-
 - Body
-
 - Footer with
-   
    - legend
    - infoline containing technical informations like parsing date and so on
 
-.. vim: ai sts=3 ts=3 sw=3 expandtab
+configuration
+=============
+
+Configuration is hard coded. Change the email address the report is sent to in the shell script.
+
+
+
+.. vim: ai sts=3 ts=3 sw=3 expandtab ft=rst
