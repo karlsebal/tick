@@ -20,7 +20,7 @@ csv format
 
 - first line
    .. hlist::
-      :columns: 4
+      :columns: 5
 
       - the marker ``#``
       - version
@@ -43,6 +43,8 @@ Tags available in version |release| are:
 +------------+-----------------------+
 | tag string | meaning               |
 +============+=======================+
+|#           | First Line            |
++------------+-----------------------+
 |e           | Entry                 |
 +------------+-----------------------+
 |h           | Holiday               |
