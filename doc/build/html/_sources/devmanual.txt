@@ -67,6 +67,18 @@ configuration
 
 Configuration is hard coded. Change the email address the report is sent to in the shell script.
 
+Components
+==========
+
+Controller
+----------
+
+Parser
+------
+
+.. automodule:: tick
+   :members:
+
 
 
 .. vim: ai sts=3 ts=3 sw=3 expandtab ft=rst

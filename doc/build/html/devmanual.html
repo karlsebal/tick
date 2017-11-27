@@ -1,37 +1,39 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Developer’s Manual &mdash; tick 0.1a documentation</title>
-    
+    <title>Developer’s Manual &#8212; tick 0.1a documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.1a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="tick 0.1a documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="User’s Manual" href="usermanual.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -56,12 +58,20 @@
 <ul>
 <li><dl class="first docutils">
 <dt>first line</dt>
-<dd><ul class="first last simple">
+<dd><table class="hlist"><tr><td><ul class="simple">
 <li>the marker <code class="docutils literal"><span class="pre">#</span></code></li>
 <li>version</li>
+</ul>
+</td><td><ul class="simple">
+<li>month</li>
+</ul>
+</td><td><ul class="simple">
 <li>holidays left</li>
+</ul>
+</td><td><ul class="simple">
 <li>over/under hours</li>
 </ul>
+</td></tr></table>
 </dd>
 </dl>
 </li>
@@ -69,7 +79,7 @@
 <dt>rest</dt>
 <dd><ul class="first last simple">
 <li>tag</li>
-<li>date</li>
+<li>day</li>
 <li>duration</li>
 <li>from unixtime</li>
 <li>to unixtime</li>
@@ -112,10 +122,10 @@
 <div class="section" id="xlsx-scheme">
 <h3>xlsx scheme<a class="headerlink" href="#xlsx-scheme" title="Permalink to this headline">¶</a></h3>
 <p>The <cite>excel</cite> file consists of roughly 3 Parts:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>Header with</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Name</li>
 <li>Month</li>
 <li>Overview</li>
@@ -123,11 +133,10 @@
 </dd>
 </dl>
 </li>
-<li><p class="first">Body</p>
-</li>
+<li>Body</li>
 <li><dl class="first docutils">
 <dt>Footer with</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>legend</li>
 <li>infoline containing technical informations like parsing date and so on</li>
 </ul>
@@ -140,6 +149,76 @@
 <div class="section" id="configuration">
 <h2>configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>Configuration is hard coded. Change the email address the report is sent to in the shell script.</p>
+</div>
+<div class="section" id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="controller">
+<h3>Controller<a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="parser">
+<h3>Parser<a class="headerlink" href="#parser" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Parser<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-tick">
+<span id="module-tick"></span><h4>Module tick<a class="headerlink" href="#module-tick" title="Permalink to this headline">¶</a></h4>
+<p>Parser for <strong class="program">tick</strong></p>
+<dl class="function">
+<dt id="tick.read_csv">
+<code class="descclassname">tick.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tick.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tick.read_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a csv and parse it into a list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – csv file to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">list</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">csv as list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol">
+<span id="module-protocol"></span><h4>Module protocol<a class="headerlink" href="#module-protocol" title="Permalink to this headline">¶</a></h4>
+<p>This module provides the protocol class</p>
+<dl class="exception">
+<dt id="protocol.InvalidDateException">
+<em class="property">exception </em><code class="descclassname">protocol.</code><code class="descname">InvalidDateException</code><a class="reference internal" href="_modules/protocol.html#InvalidDateException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.InvalidDateException" title="Permalink to this definition">¶</a></dt>
+<dd><p>raised in case an invalid date string was provided</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.Protocol">
+<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Protocol</code><span class="sig-paren">(</span><em>holidays_left: int = 0</em>, <em>working_hours_account: int = 0</em>, <em>month: str = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the work time protocol for one month</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holidays_left</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of holidays left, 0 if omitted</li>
+<li><strong>working_hours_account</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – credit of working hours, 0 if omitted</li>
+<li><strong>month</strong> (<code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]) – integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
+If only one digit is given it will be padded with a leading 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#protocol.InvalidDateException" title="protocol.InvalidDateException"><strong>InvalidDateException</strong></a> – raised when the Date given is nonsense.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
 </div>
 </div>
 
@@ -162,6 +241,19 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">configuration</a></li>
+<li><a class="reference internal" href="#components">Components</a><ul>
+<li><a class="reference internal" href="#controller">Controller</a></li>
+<li><a class="reference internal" href="#parser">Parser</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api">API</a><ul>
+<li><a class="reference internal" href="#id1">Parser</a><ul>
+<li><a class="reference internal" href="#module-tick">Module tick</a></li>
+<li><a class="reference internal" href="#module-protocol">Module protocol</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -177,21 +269,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/devmanual.txt"
+      <li><a href="_sources/devmanual.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -202,11 +291,11 @@
       &copy;2017, k.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/devmanual.txt"
+      <a href="_sources/devmanual.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
