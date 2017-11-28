@@ -18,22 +18,29 @@ The controller files are stored in :file:`~/.tick/` where for each month a `csv`
 csv format
 ----------
 
+The csv follows the **standard format** of `comma separated values`.
+
+.. TODO link to spec
+
 - first line
    .. hlist::
       :columns: 5
 
-      - the marker ``#``
+      - `#`
       - version
       - month
       - holidays left
       - over/under hours
 - rest
-   - tag
-   - day
-   - duration
-   - from unixtime
-   - to unixtime
-   - description
+   .. hlist::
+      :columns: 6
+
+      - tag
+      - day
+      - duration
+      - from unixtime
+      - to unixtime
+      - description
 
 available tags
 ^^^^^^^^^^^^^^
@@ -54,6 +61,7 @@ Tags available in version |release| are:
 |i           | Illness               |
 +------------+-----------------------+
 
+
 xlsx scheme
 -----------
 
@@ -67,6 +75,16 @@ The `excel` file consists of roughly 3 Parts:
 - Footer with
    - legend
    - infoline containing technical informations like parsing date and so on
+
+Legacy Formats
+--------------
+
+The predecessor :program:`etime` used two files:
+
+- the tracker put the data of a month into :file:`~/.etime/<YY-MM.elog` whith each line in the form ``<DD> <duration in hours in float> <description>``
+- when parsing two files where created: 
+   - a :file:`csv` with each line of the form ``<DD>.<MM>.;<Duration in float, comma as separator>;"<description>"``
+   - a :file:`xlsx` containing a bare, unsorted list with full dates
 
 configuration
 =============

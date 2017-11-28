@@ -9,7 +9,7 @@ class InvalidDateException(Exception):
     pass
 
 
-class Protocol:
+class Month:
     """
     Provides the work time protocol for one month
     
@@ -88,5 +88,20 @@ class Protocol:
             )
         )
 
+
+class Year:
+    def __init__(self, year:int=None):
+        if not year:
+            self.year = time.localtime().tm_year
+        else:
+            self.year = year
+
+        self.protocols = {}
+
+    def add_protocol(self, protocol:Month) -> None:
+        """
+        add a protocol to :var:`self.protocols` no checking
+        :param protocol: protocol to add. If existing this will overwrite the former without warning.
+        self.protocols[protocol.month] = protocol
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
