@@ -1,53 +1,114 @@
 import unittest
-from protocol import Protocol 
+from protocol import Month as Protocol
+from protocol import Month
 from protocol import InvalidDateException
+from protocol import ConfusingDataException
 import time
 
 class TestProtocol(unittest.TestCase):
-    
+
     def testInit(self):
         current_year = time.localtime().tm_year
         current_month = time.localtime().tm_mon
 
-        invalid_datestrings = [
-                            "00jj",
-                            "jj",
-                            "1144",
-                            "0044",
-                            "201713",
-                            "123",
-                            "201700",
-                            "1700",
-                            "1723",
-                            '13',
-                            '0',
-                            '111'
+        invalid_dates = [
+                            1144,
+                            44,
+                            201713,
+                            123,
+                            201700,
+                            1700,
+                            1723,
+                            13,
+                            111
                             ]
 
-        for invalid_date in invalid_datestrings:
-            print('test invalid date string: %r' % invalid_date)
+        for invalid_date in invalid_dates:
             self.assertRaises(InvalidDateException, Protocol, month=invalid_date)
 
         # without parameters year must be set to current
         self.assertEqual(Protocol().year, current_year)
         self.assertEqual(Protocol().month, current_month)
 
-        p = Protocol(month='11')
+        p = Protocol(month=11)
 
         self.assertEqual(p.month, 11)
         self.assertEqual(p.year, current_year)
 
-        p = Protocol(month='1')
+        p = Protocol(month=1)
 
         self.assertEqual(p.month, 1)
         self.assertEqual(p.year, current_year)
 
-        p = Protocol(month='2012')
+        p = Protocol(year=20, month=12)
 
         self.assertEqual(p.month, 12)
-        self.assertEqual(p.year, 2020)
+        self.assertEqual(p.year, 20)
 
-    def test_init_and_print(self):
-        self.assertEqual(Protocol('9',12,12).__str__(), 'Month: 9, HolidaysLeftBeginMonth: 12, HolidaysLeft: 12, WorkingHoursAccountBeginMonth: 12, WorkingHoursAccount: 12, Protocol: []')
+        p = Protocol(year=0, month=12)
+
+        self.assertEqual(p.month, 12)
+        self.assertEqual(p.year, current_year)
+
+    def test_init_and_string(self):
+        self.assertEqual(Protocol(2012, 9, 12, 12, 4).__str__(), 'Year: 2012, Month: 9, HolidaysLeftBeginMonth: 12d, HolidaysLeft: 12d, WorkingHoursAccountBeginMonth: 12s, WorkingHoursAccount: 12s, MonthlyTarget: 86.6h, WorkingHoursBalance: -86.6h, Protocol: []')
+
+    def test_append(self):
+        # although calculating in unixtime we use small numbers for testing
+
+        epoc = int(time.time())
+        hour = 3600
+
+        test_entries = [
+                    ['e', 12, 4 * hour, None, None, 'testtätigkeit'],   # duration given 
+                    ['e', 13, None, epoc , epoc + 3 * hour, 'testtätigkeit'], # fromto given
+                    ['e', 13, 100, 100 , 200, 'testtätigkeit'], # both given
+        ]
+    
+        month = Month(None, 9, 21, 2, 4)
+
+        for entry in test_entries:
+            month.append(*entry)
+
+        # only from or to given
+        self.assertRaises(ConfusingDataException, month.append, *['e', 2, None, 12, None, 'desc'])
+        self.assertRaises(ConfusingDataException, month.append, *['e', 2, None, None, 12, 'desc'])
+
+        # no duration given in a normal entry should use hours_worth_workday
+        month.append('e', 2, None, None, None, 'desc')
+        self.assertEqual(month.protocol.pop()['duration'],4)
+
+        # duration not matching fromto
+        self.assertRaises(ConfusingDataException, month.append, *['e', 2, 2, 0, 10, 'desc'])
+
+        # year 12 had a 29th
+        month = Month(12,2,0,0)
+        month.append('e', 29, 1, 0, 0, 'test')
+
+        month = Month(13,2,0,0)
+
+        # invalid date
+        self.assertRaises(InvalidDateException, month.append, *['e', 29, 12, 0, 0, 'desc'])
+
+        # check counting
+        m = Month(0,0,20,0,4)
+        self.assertEqual(m.holidays_left, 20)
+
+        m.append('h',1)
+        self.assertEqual(m.holidays_left, 19)
+        self.assertEqual(m.working_hours_account, 4)
+        
+        m.append('h',1,3)
+        self.assertEqual(m.holidays_left, 18)
+        self.assertEqual(m.working_hours_account, 7)
+
+        # check target
+        m = Month(hours_worth_working_day=6)
+        self.assertEqual(m.monthly_target, 129.9)
+
+        m = Month(hours_worth_working_day=8)
+        self.assertEqual(m.monthly_target, 173.2)
+
+
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

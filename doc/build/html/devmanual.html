@@ -26,14 +26,11 @@
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="User’s Manual" href="usermanual.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>
-  
+  <body>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -55,42 +52,34 @@
 <p>The controller files are stored in <code class="file docutils literal"><span class="pre">~/.tick/</span></code> where for each month a <cite>csv</cite> file is created.</p>
 <div class="section" id="csv-format">
 <h3>csv format<a class="headerlink" href="#csv-format" title="Permalink to this headline">¶</a></h3>
+<p>The csv in principle follows the <strong>standard format</strong> of <cite>comma separated values</cite> <a class="footnote-reference" href="#csv-spec" id="id1">[1]</a>.</p>
 <ul>
-<li><dl class="first docutils">
-<dt>first line</dt>
-<dd><table class="hlist"><tr><td><ul class="simple">
-<li>the marker <code class="docutils literal"><span class="pre">#</span></code></li>
-</ul>
-</td><td><ul class="simple">
+<li><p class="first">first line</p>
+<blockquote>
+<div><ul class="simple">
+<li><cite>#</cite></li>
 <li>version</li>
-</ul>
-</td><td><ul class="simple">
 <li>month</li>
-</ul>
-</td><td><ul class="simple">
 <li>holidays left</li>
+<li>over/under hours in seconds</li>
+<li>hours a working day is worth</li>
 </ul>
-</td><td><ul class="simple">
-<li>over/under hours</li>
-</ul>
-</td></tr></table>
-</dd>
-</dl>
+</div></blockquote>
 </li>
-<li><dl class="first docutils">
-<dt>rest</dt>
-<dd><ul class="first last simple">
+<li><p class="first">rest</p>
+<blockquote>
+<div><ul class="simple">
 <li>tag</li>
 <li>day</li>
-<li>duration</li>
+<li>duration in seconds</li>
 <li>from unixtime</li>
 <li>to unixtime</li>
 <li>description</li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
 </ul>
+<p>It is not neccessary that both duration and from/to are set but if they are those two times pans are validated against each other.</p>
 <div class="section" id="available-tags">
 <h4>available tags<a class="headerlink" href="#available-tags" title="Permalink to this headline">¶</a></h4>
 <p>Tags available in version 0.1a are:</p>
@@ -122,15 +111,21 @@
 </tr>
 </tbody>
 </table>
+<table class="docutils footnote" frame="void" id="csv-spec" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Comma-separated_values">https://en.wikipedia.org/wiki/Comma-separated_values</a></td></tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section" id="xlsx-scheme">
 <h3>xlsx scheme<a class="headerlink" href="#xlsx-scheme" title="Permalink to this headline">¶</a></h3>
 <p>The <cite>excel</cite> file consists of roughly 3 Parts:</p>
-<ul class="simple">
+<ul>
 <li><dl class="first docutils">
 <dt>Header with</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>Name</li>
 <li>Month</li>
 <li>Overview</li>
@@ -138,12 +133,30 @@
 </dd>
 </dl>
 </li>
-<li>Body</li>
+<li><p class="first">Body</p>
+</li>
 <li><dl class="first docutils">
 <dt>Footer with</dt>
-<dd><ul class="first last">
+<dd><ul class="first last simple">
 <li>legend</li>
 <li>infoline containing technical informations like parsing date and so on</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="legacy-formats">
+<h3>Legacy Formats<a class="headerlink" href="#legacy-formats" title="Permalink to this headline">¶</a></h3>
+<p>The predecessor <strong class="program">etime</strong> used two files:</p>
+<ul>
+<li><p class="first">the tracker put the data of a month into <code class="file docutils literal"><span class="pre">~/.etime/&lt;YY-MM.elog</span></code> whith each line in the form <code class="docutils literal"><span class="pre">&lt;DD&gt;</span> <span class="pre">&lt;duration</span> <span class="pre">in</span> <span class="pre">hours</span> <span class="pre">in</span> <span class="pre">float&gt;</span> <span class="pre">&lt;description&gt;</span></code></p>
+</li>
+<li><dl class="first docutils">
+<dt>when parsing two files where created:</dt>
+<dd><ul class="first last simple">
+<li>a <code class="file docutils literal"><span class="pre">csv</span></code> with each line of the form <code class="docutils literal"><span class="pre">&lt;DD&gt;.&lt;MM&gt;.;&lt;Duration</span> <span class="pre">in</span> <span class="pre">float,</span> <span class="pre">comma</span> <span class="pre">as</span> <span class="pre">separator&gt;;&quot;&lt;description&gt;&quot;</span></code></li>
+<li>a <code class="file docutils literal"><span class="pre">xlsx</span></code> containing a bare, unsorted list with full dates</li>
 </ul>
 </dd>
 </dl>
@@ -166,14 +179,14 @@
 </div>
 <div class="section" id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id1">
-<h3>Parser<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="module-tick">
-<span id="module-tick"></span><h4>Module tick<a class="headerlink" href="#module-tick" title="Permalink to this headline">¶</a></h4>
-<p>Parser for <strong class="program">tick</strong></p>
+<div class="section" id="id2">
+<h3>Parser<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4>parser<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<span class="target" id="module-parser"></span><p>Parser for <strong class="program">tick</strong></p>
 <dl class="function">
-<dt id="tick.read_csv">
-<code class="descclassname">tick.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tick.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tick.read_csv" title="Permalink to this definition">¶</a></dt>
+<dt id="parser.read_csv">
+<code class="descclassname">parser.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/parser.html#read_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parser.read_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a csv and parse it into a list</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,17 +204,11 @@
 
 </div>
 <div class="section" id="module-protocol">
-<span id="module-protocol"></span><h4>Module protocol<a class="headerlink" href="#module-protocol" title="Permalink to this headline">¶</a></h4>
+<span id="protocol"></span><h4>protocol<a class="headerlink" href="#module-protocol" title="Permalink to this headline">¶</a></h4>
 <p>This module provides the protocol class</p>
-<dl class="exception">
-<dt id="protocol.InvalidDateException">
-<em class="property">exception </em><code class="descclassname">protocol.</code><code class="descname">InvalidDateException</code><a class="reference internal" href="_modules/protocol.html#InvalidDateException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.InvalidDateException" title="Permalink to this definition">¶</a></dt>
-<dd><p>raised in case an invalid date string was provided</p>
-</dd></dl>
-
 <dl class="class">
-<dt id="protocol.Protocol">
-<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Protocol</code><span class="sig-paren">(</span><em>month: str = None</em>, <em>holidays_left: int = 0</em>, <em>working_hours_account: int = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dt id="protocol.Month">
+<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Month</code><span class="sig-paren">(</span><em>year: int = None</em>, <em>month: int = None</em>, <em>holidays_left: int = 0</em>, <em>working_hours_account: int = 0</em>, <em>hours_worth_working_day: int = 4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the work time protocol for one month</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -209,20 +216,21 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>holidays_left</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of holidays left, 0 if omitted</li>
-<li><strong>working_hours_account</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – credit of working hours, 0 if omitted</li>
-<li><strong>month</strong> (<code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]) – integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
+<li><strong>working_hours_account</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – credit of working hours in seconds, 0 if omitted</li>
+<li><strong>yearmonth</strong> – integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing.</li>
+<li><strong>hours_worth_working_day</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of hours a working day is worth
 If only one digit is given it will be padded with a leading 0.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#protocol.InvalidDateException" title="protocol.InvalidDateException"><strong>InvalidDateException</strong></a> – raised when the Date given is nonsense.</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>InvalidDateException</strong> – raised when the Date given is nonsense.</p>
 </td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="protocol.Protocol.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>tag</em>, <em>day</em>, <em>duration</em>, <em>from_unixtime</em>, <em>to_unixtime</em>, <em>description</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Protocol.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Protocol.append" title="Permalink to this definition">¶</a></dt>
+<dt id="protocol.Month.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>tag</em>, <em>day</em>, <em>duration=0</em>, <em>from_unixtime=0</em>, <em>to_unixtime=0</em>, <em>description=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>append an entry to the protocol</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -233,11 +241,14 @@ If only one digit is given it will be padded with a leading 0.</li>
 <li><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – duration of work</li>
 <li><strong>from_unixtime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – beginning of work in epoch</li>
 <li><strong>to_unixtime</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – ending of work in epoch</li>
-<li><strong>description</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – description</li>
+<li><strong>description</strong> (<code class="xref py py-data docutils literal"><span class="pre">Optional</span></code>[<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]) – description</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/constants.html#None" title="(in Python v2.7)">None</a></p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ConfusingData</strong> – when duration and from/to do are both given and do not match</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/constants.html#None" title="(in Python v2.7)">None</a></p>
 </td>
 </tr>
 </tbody>
@@ -267,6 +278,7 @@ If only one digit is given it will be padded with a leading 0.</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#xlsx-scheme">xlsx scheme</a></li>
+<li><a class="reference internal" href="#legacy-formats">Legacy Formats</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">configuration</a></li>
@@ -276,9 +288,9 @@ If only one digit is given it will be padded with a leading 0.</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#api">API</a><ul>
-<li><a class="reference internal" href="#id1">Parser</a><ul>
-<li><a class="reference internal" href="#module-tick">Module tick</a></li>
-<li><a class="reference internal" href="#module-protocol">Module protocol</a></li>
+<li><a class="reference internal" href="#id2">Parser</a><ul>
+<li><a class="reference internal" href="#id3">parser</a></li>
+<li><a class="reference internal" href="#module-protocol">protocol</a></li>
 </ul>
 </li>
 </ul>
@@ -321,7 +333,7 @@ If only one digit is given it will be padded with a leading 0.</li>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
       <a href="_sources/devmanual.rst.txt"

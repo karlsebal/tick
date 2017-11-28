@@ -18,29 +18,27 @@ The controller files are stored in :file:`~/.tick/` where for each month a `csv`
 csv format
 ----------
 
-The csv follows the **standard format** of `comma separated values`.
-
-.. TODO link to spec
+The csv in principle follows the **standard format** of `comma separated values` [#csv_spec]_.
 
 - first line
-   .. hlist::
-      :columns: 5
 
-      - `#`
-      - version
-      - month
-      - holidays left
-      - over/under hours
+   - `#`
+   - version
+   - month
+   - holidays left
+   - over/under hours in seconds
+   - hours a working day is worth
+
 - rest
-   .. hlist::
-      :columns: 6
 
-      - tag
-      - day
-      - duration
-      - from unixtime
-      - to unixtime
-      - description
+   - tag
+   - day
+   - duration in seconds
+   - from unixtime
+   - to unixtime
+   - description
+
+It is not neccessary that both duration and from/to are set but if they are those two times pans are validated against each other.
 
 available tags
 ^^^^^^^^^^^^^^
@@ -61,6 +59,10 @@ Tags available in version |release| are:
 |i           | Illness               |
 +------------+-----------------------+
 
+.. fix vim syntax highlighting: ||
+
+.. [#csv_spec] https://en.wikipedia.org/wiki/Comma-separated_values
+ 
 
 xlsx scheme
 -----------
@@ -106,14 +108,14 @@ API
 Parser
 ------
 
-Module tick
-^^^^^^^^^^^
+parser
+^^^^^^
 
-.. automodule:: tick
+.. automodule:: parser
    :members:
 
-Module protocol
-^^^^^^^^^^^^^^^
+protocol
+^^^^^^^^
 
 .. automodule:: protocol
    :members:

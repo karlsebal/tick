@@ -3,9 +3,12 @@ This module provides the protocol class
 """
 
 import time
+import datetime
 
 class InvalidDateException(Exception):
-    """raised in case an invalid date string was provided"""
+    pass
+
+class ConfusingDataException(Exception):
     pass
 
 
@@ -15,51 +18,41 @@ class Month:
     
     
     :param holidays_left: number of holidays left, 0 if omitted
-    :param working_hours_account: credit of working hours, 0 if omitted
-    :param month: integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
+    :param working_hours_account: credit of working hours in seconds, 0 if omitted
+    :param yearmonth: integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
+    :param hours_worth_working_day: number of hours a working day is worth
         If only one digit is given it will be padded with a leading 0.
     :raises InvalidDateException: raised when the Date given is nonsense.
     """
 
-    HOURS_WORTH_HOLIDAY = 4 # a constant, how much a holiday is worth in hours
+    AVERAGE_WEEKS_PER_MONTH = 4.33
 
-    def __init__(self, month: str=None, holidays_left: int=0, working_hours_account: int=0):
+    def __init__(self, year:int=None, month:int=None, holidays_left:int=0, working_hours_account:int=0, hours_worth_working_day:int=4):
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
         self.holidays_left = self.holidays_left_begin
         self.working_hours_account_begin = working_hours_account
         self.working_hours_account = self.working_hours_account_begin
-        
+        self.hours_worth_working_day = hours_worth_working_day
+        self.monthly_target = 5 * hours_worth_working_day * Month.AVERAGE_WEEKS_PER_MONTH
+
+        t = time.localtime()
+
         if not month:
-            t = time.localtime()
-            self.year = t.tm_year
             self.month = t.tm_mon
         else:
-            # first sanitize the string
-            if len(month) == 1:
-                # missing leading zero
-                month = '0' + month
-            if len(month) == 2:
-                # no year given
-                month = str(time.localtime().tm_year) + month
-            elif len(month) == 4:
-                # last two digits of year given
-                month = '20' + month
-            elif len(month) != 6:
-                # something’s wrong with the string
-                raise InvalidDateException("wrong length: %s" % month)
+            self.month = month
 
-            try:
-                self.year = int(month[:4])
-                self.month = int(month[4:])
-            except ValueError as e:
-                raise InvalidDateException('Error parsing date: %r' % e)
+        if not year:
+            self.year = t.tm_year
+        else:
+            self.year = year
 
         if self.month < 1 or self.month > 12:
             raise InvalidDateException('%d is not a valid month' % self.month)
 
-    def append(self, tag:str, day:int, duration:int, from_unixtime:int, to_unixtime:int, description:str) -> None:
+    def append(self, tag:str, day:int, duration:int=0, from_unixtime:int=0, to_unixtime:int=0, description:str=None) -> None:
         """
         append an entry to the protocol
 
@@ -68,22 +61,61 @@ class Month:
         :param from_unixtime: beginning of work in epoch
         :param to_unixtime: ending of work in epoch
         :param description: description
+        :raises ConfusingData: when duration and from/to do are both given and do not match
+
         """
-        self.protocol.append([tag, day, duration, from_unixtime, to_unixtime, description])
+        # validate and set duration
+        if from_unixtime and not to_unixtime or to_unixtime and not from_unixtime:
+            raise ConfusingDataException('from and to must be given both')
+
+        if duration and from_unixtime:
+            if duration != (to_unixtime - from_unixtime):
+                raise ConfusingDataException('duration given and calculated do not match')
+
+        if not duration and not from_unixtime:
+            duration = self.hours_worth_working_day
+
+        # we should be safe now
+        if not duration:
+            duration = to_unixtime - from_unixtime
+
+        # validate date
+        try:
+            datetime.date(self.year, self.month, day)
+        except ValueError as e:
+            raise InvalidDateException('%s' % str(e))
+
+
+        self.protocol.append({'tag':tag, 'day':day, 'duration':duration, 
+                                'from':from_unixtime, 'to':to_unixtime, 'description':description})
+
+
+        self.working_hours_account += duration
+
+        if tag == 'h':
+            self.holidays_left -= 1
+
+
 
     def __str__(self):
         return (
+            'Year: %d, '
             'Month: %d, '
-            'HolidaysLeftBeginMonth: %d, '
-            'HolidaysLeft: %d, '
-            'WorkingHoursAccountBeginMonth: %d, '
-            'WorkingHoursAccount: %d, '
+            'HolidaysLeftBeginMonth: %dd, '
+            'HolidaysLeft: %dd, '
+            'WorkingHoursAccountBeginMonth: %ds, '
+            'WorkingHoursAccount: %ds, '
+            'MonthlyTarget: %.1fh, '
+            'WorkingHoursBalance: %.1fh, '
             'Protocol: %r' % (
+                self.year,
                 self.month,
                 self.holidays_left_begin,
                 self.holidays_left,
                 self.working_hours_account_begin,
                 self.working_hours_account,
+                self.monthly_target,
+                self.working_hours_account/3600 - self.monthly_target,
                 self.protocol
             )
         )
@@ -100,8 +132,10 @@ class Year:
 
     def add_protocol(self, protocol:Month) -> None:
         """
-        add a protocol to :var:`self.protocols` no checking
-        :param protocol: protocol to add. If existing this will overwrite the former without warning.
+        add a protocol to :var:`self.protocols`
+        :param protocol: protocol to add.
         self.protocols[protocol.month] = protocol
+        """
+        raise NotImplementedError
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
