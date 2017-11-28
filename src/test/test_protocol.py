@@ -62,13 +62,19 @@ class TestProtocol(unittest.TestCase):
         test_entries = [
                     ['e', 12, 4 * hour, None, None, 'testtätigkeit'],   # duration given 
                     ['e', 13, None, epoc , epoc + 3 * hour, 'testtätigkeit'], # fromto given
-                    ['e', 13, 100, 100 , 200, 'testtätigkeit'], # both given
+                    ['e', 14, 3600, 100 , 3700, 'testtätigkeit'], # both given
+                    ['e', 15, 100 * hour, 0, 0, 'long run'],
+                    ['h', 16],
+                    ['h', 17],
+                    ['i', 18]
         ]
     
-        month = Month(None, 9, 21, 2, 4)
+        month = Month(0, 0, 10, 0, 4)
 
         for entry in test_entries:
             month.append(*entry)
+            print(month, '\n')
+
 
         # only from or to given
         self.assertRaises(ConfusingDataException, month.append, *['e', 2, None, 12, None, 'desc'])
@@ -76,7 +82,7 @@ class TestProtocol(unittest.TestCase):
 
         # no duration given in a normal entry should use hours_worth_workday
         month.append('e', 2, None, None, None, 'desc')
-        self.assertEqual(month.protocol.pop()['duration'],4)
+        self.assertEqual(month.protocol.pop()['duration'], 4 * hour)
 
         # duration not matching fromto
         self.assertRaises(ConfusingDataException, month.append, *['e', 2, 2, 0, 10, 'desc'])
@@ -96,11 +102,11 @@ class TestProtocol(unittest.TestCase):
 
         m.append('h',1)
         self.assertEqual(m.holidays_left, 19)
-        self.assertEqual(m.working_hours_account, 4)
+        self.assertEqual(m.working_hours_account, 4 * 3600)
         
-        m.append('h',1,3)
+        m.append('h',1,3 * 3600)
         self.assertEqual(m.holidays_left, 18)
-        self.assertEqual(m.working_hours_account, 7)
+        self.assertEqual(m.working_hours_account, 7 * 3600)
 
         # check target
         m = Month(hours_worth_working_day=6)
@@ -108,7 +114,6 @@ class TestProtocol(unittest.TestCase):
 
         m = Month(hours_worth_working_day=8)
         self.assertEqual(m.monthly_target, 173.2)
-
 
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

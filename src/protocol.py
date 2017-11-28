@@ -27,7 +27,7 @@ class Month:
 
     AVERAGE_WEEKS_PER_MONTH = 4.33
 
-    def __init__(self, year:int=None, month:int=None, holidays_left:int=0, working_hours_account:int=0, hours_worth_working_day:int=4):
+    def __init__(self, year:int=0, month:int=0, holidays_left:int=0, working_hours_account:int=0, hours_worth_working_day:int=4):
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
@@ -73,7 +73,7 @@ class Month:
                 raise ConfusingDataException('duration given and calculated do not match')
 
         if not duration and not from_unixtime:
-            duration = self.hours_worth_working_day
+            duration = self.hours_worth_working_day * 3600
 
         # we should be safe now
         if not duration:
@@ -106,7 +106,7 @@ class Month:
             'WorkingHoursAccountBeginMonth: %ds, '
             'WorkingHoursAccount: %ds, '
             'MonthlyTarget: %.1fh, '
-            'WorkingHoursBalance: %.1fh, '
+            'WorkingHoursBalance: %+.1fh, '
             'Protocol: %r' % (
                 self.year,
                 self.month,
