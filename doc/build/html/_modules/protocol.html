@@ -64,7 +64,7 @@
 
     <span class="n">HOURS_WORTH_HOLIDAY</span> <span class="o">=</span> <span class="mi">4</span> <span class="c1"># a constant, how much a holiday is worth in hours</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">holidays_left</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">working_hours_account</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">holidays_left</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">working_hours_account</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span> <span class="o">=</span> <span class="n">holidays_left</span>
@@ -100,7 +100,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> is not a valid month&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Protocol.append_entry"><a class="viewcode-back" href="../devmanual.html#protocol.Protocol.append_entry">[docs]</a>    <span class="k">def</span> <span class="nf">append_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Protocol.append"><a class="viewcode-back" href="../devmanual.html#protocol.Protocol.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        append an entry to the protocol</span>
 
@@ -113,7 +113,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">tag</span><span class="p">,</span> <span class="n">day</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">,</span> <span class="n">description</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s1">&#39;Month: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;HolidaysLeftBeginMonth: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;HolidaysLeft: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;WorkingHoursAccountBeginMonth: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;WorkingHoursAccount: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;Protocol: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <span class="c1"># vim: ai sts=4 ts=4 sw=4 expandtab</span>

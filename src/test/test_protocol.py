@@ -25,7 +25,7 @@ class TestProtocol(unittest.TestCase):
                             ]
 
         for invalid_date in invalid_datestrings:
-            print('test invalid date: %r' % invalid_date)
+            print('test invalid date string: %r' % invalid_date)
             self.assertRaises(InvalidDateException, Protocol, month=invalid_date)
 
         # without parameters year must be set to current
@@ -46,5 +46,8 @@ class TestProtocol(unittest.TestCase):
 
         self.assertEqual(p.month, 12)
         self.assertEqual(p.year, 2020)
+
+    def test_init_and_print(self):
+        self.assertEqual(Protocol('9',12,12).__str__(), 'Month: 9, HolidaysLeftBeginMonth: 12, HolidaysLeft: 12, WorkingHoursAccountBeginMonth: 12, WorkingHoursAccount: 12, Protocol: []')
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

@@ -23,7 +23,7 @@ class Protocol:
 
     HOURS_WORTH_HOLIDAY = 4 # a constant, how much a holiday is worth in hours
 
-    def __init__(self, holidays_left: int=0, working_hours_account: int=0, month: str=None):
+    def __init__(self, month: str=None, holidays_left: int=0, working_hours_account: int=0):
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
@@ -72,7 +72,21 @@ class Protocol:
         self.protocol.append([tag, day, duration, from_unixtime, to_unixtime, description])
 
     def __str__(self):
-        return str(self.protocol)
+        return (
+            'Month: %d, '
+            'HolidaysLeftBeginMonth: %d, '
+            'HolidaysLeft: %d, '
+            'WorkingHoursAccountBeginMonth: %d, '
+            'WorkingHoursAccount: %d, '
+            'Protocol: %r' % (
+                self.month,
+                self.holidays_left_begin,
+                self.holidays_left,
+                self.working_hours_account_begin,
+                self.working_hours_account,
+                self.protocol
+            )
+        )
 
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
