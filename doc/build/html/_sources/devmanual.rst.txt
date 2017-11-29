@@ -38,7 +38,7 @@ The csv in principle follows the **standard format** of `comma separated values`
    - to unixtime
    - description
 
-It is not neccessary that both duration and from/to are set but if they are those two times pans are validated against each other.
+It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.
 
 available tags
 ^^^^^^^^^^^^^^
@@ -49,6 +49,8 @@ Tags available in version |release| are:
 | tag string | meaning               |
 +============+=======================+
 |#           | First Line            |
++------------+-----------------------+
+|~           | Comment               |
 +------------+-----------------------+
 |e           | Entry                 |
 +------------+-----------------------+
