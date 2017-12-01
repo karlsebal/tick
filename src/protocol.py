@@ -52,7 +52,7 @@ class Month:
         if self.month < 1 or self.month > 12:
             raise InvalidDateException('%d is not a valid month' % self.month)
 
-    def append(self, tag:str, day:int, duration:int=0, from_unixtime:int=0, to_unixtime:int=0, description:str=None) -> None:
+    def append(self, tag:str, day:int, duration:int=0, from_unixtime:int=0, to_unixtime:int=0, description:str=None) -> 'Month':
         """
         append an entry to the protocol
 
@@ -87,13 +87,32 @@ class Month:
 
 
         self.protocol.append({'tag':tag, 'day':day, 'duration':duration, 
-                                'from':from_unixtime, 'to':to_unixtime, 'description':description})
+                                'from_unixtime':from_unixtime, 'to_unixtime':to_unixtime, 'description':description})
 
 
         self.working_hours_account += duration
 
         if tag == 'h':
             self.holidays_left -= 1
+
+        return self
+
+
+
+    def get_dict(self) -> dict:
+        """return a dict with all values"""
+
+        return {
+            'year': self.year,
+            'month': self.month,
+            'holidays_left_begin': self.holidays_left_begin,
+            'holidays_left': self.holidays_left,
+            'working_hours_account_begin': self.working_hours_account_begin,
+            'working_hours_account': self.working_hours_account,
+            'monthly_target': self.monthly_target,
+            'working_hours_balance': self.working_hours_account/3600 - self.monthly_target,
+            'protocol': self.protocol
+        }
 
 
 
@@ -128,14 +147,16 @@ class Year:
         else:
             self.year = year
 
-        self.protocols = {}
+        self.months = {}
 
-    def add_protocol(self, protocol:Month) -> None:
+    def add_month(self, month:Month) -> 'Year':
         """
         add a protocol to :var:`self.protocols`
         :param protocol: protocol to add.
         self.protocols[protocol.month] = protocol
         """
         raise NotImplementedError
+
+        return self
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

@@ -73,7 +73,8 @@ class TestProtocol(unittest.TestCase):
 
         for entry in test_entries:
             month.append(*entry)
-            print(month, '\n')
+            print(50 * '*', '\n', month, '\n', 50 * '#')
+            print(month.get_dict(), 50 * '*', '\n')
 
 
         # only from or to given
