@@ -26,11 +26,14 @@
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="User’s Manual" href="usermanual.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,35 +52,27 @@
 </div>
 <div class="section" id="files-and-formats">
 <h2>files and formats<a class="headerlink" href="#files-and-formats" title="Permalink to this headline">¶</a></h2>
-<p>The controller files are stored in <code class="file docutils literal"><span class="pre">~/.tick/</span></code> where for each month a <cite>csv</cite> file is created.</p>
+<p>The controller files are stored in <code class="file docutils literal"><span class="pre">~/.tick/</span></code> where for each month a <cite>&lt;YYMM.csv</cite> is created. Additionally there is an <cite>.info</cite> file containing the months values like working hour account and holidays left.</p>
+<div class="section" id="info-file">
+<h3>info file<a class="headerlink" href="#info-file" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>.info</cite> file contains the month’s values:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">&lt;</span><span class="n">YYMM</span><span class="o">&gt;</span><span class="p">]</span>
+<span class="n">WorkingHoursAccount</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="n">WorkingHoursWorthDay</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+<span class="n">HolidaysLeft</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="csv-format">
 <h3>csv format<a class="headerlink" href="#csv-format" title="Permalink to this headline">¶</a></h3>
-<p>The csv in principle follows the <strong>standard format</strong> of <cite>comma separated values</cite> <a class="footnote-reference" href="#csv-spec" id="id1">[1]</a>.</p>
-<ul>
-<li><p class="first">first line</p>
-<blockquote>
-<div><ul class="simple">
-<li><cite>#</cite></li>
-<li>version</li>
-<li>month</li>
-<li>holidays left</li>
-<li>over/under hours in seconds</li>
-<li>hours a working day is worth</li>
-</ul>
-</div></blockquote>
-</li>
-<li><p class="first">rest</p>
-<blockquote>
-<div><ul class="simple">
+<p>The csv follows the <strong>standard format</strong> of <cite>comma separated values</cite> <a class="footnote-reference" href="#csv-spec" id="id1">[1]</a>.</p>
+<ul class="simple">
 <li>tag</li>
 <li>day</li>
 <li>duration in seconds</li>
 <li>from unixtime</li>
 <li>to unixtime</li>
 <li>description</li>
-</ul>
-</div></blockquote>
-</li>
 </ul>
 <p>It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.</p>
 <div class="section" id="available-tags">
@@ -125,10 +120,10 @@
 <div class="section" id="xlsx-scheme">
 <h3>xlsx scheme<a class="headerlink" href="#xlsx-scheme" title="Permalink to this headline">¶</a></h3>
 <p>The <cite>excel</cite> file consists of roughly 3 Parts:</p>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>Header with</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>Name</li>
 <li>Month</li>
 <li>Overview</li>
@@ -136,11 +131,10 @@
 </dd>
 </dl>
 </li>
-<li><p class="first">Body</p>
-</li>
+<li>Body</li>
 <li><dl class="first docutils">
 <dt>Footer with</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>legend</li>
 <li>infoline containing technical informations like parsing date and so on</li>
 </ul>
@@ -152,12 +146,11 @@
 <div class="section" id="legacy-formats">
 <h3>Legacy Formats<a class="headerlink" href="#legacy-formats" title="Permalink to this headline">¶</a></h3>
 <p>The predecessor <strong class="program">etime</strong> used two files:</p>
-<ul>
-<li><p class="first">the tracker put the data of a month into <code class="file docutils literal"><span class="pre">~/.etime/&lt;YY-MM.elog</span></code> whith each line in the form <code class="docutils literal"><span class="pre">&lt;DD&gt;</span> <span class="pre">&lt;duration</span> <span class="pre">in</span> <span class="pre">hours</span> <span class="pre">in</span> <span class="pre">float&gt;</span> <span class="pre">&lt;description&gt;</span></code></p>
-</li>
+<ul class="simple">
+<li>the tracker put the data of a month into <code class="file docutils literal"><span class="pre">~/.etime/&lt;YY-MM.elog</span></code> whith each line in the form <code class="docutils literal"><span class="pre">&lt;DD&gt;</span> <span class="pre">&lt;duration</span> <span class="pre">in</span> <span class="pre">hours</span> <span class="pre">in</span> <span class="pre">float&gt;</span> <span class="pre">&lt;description&gt;</span></code></li>
 <li><dl class="first docutils">
 <dt>when parsing two files where created:</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>a <code class="file docutils literal"><span class="pre">csv</span></code> with each line of the form <code class="docutils literal"><span class="pre">&lt;DD&gt;.&lt;MM&gt;.;&lt;Duration</span> <span class="pre">in</span> <span class="pre">float,</span> <span class="pre">comma</span> <span class="pre">as</span> <span class="pre">separator&gt;;&quot;&lt;description&gt;&quot;</span></code></li>
 <li>a <code class="file docutils literal"><span class="pre">xlsx</span></code> containing a bare, unsorted list with full dates</li>
 </ul>
@@ -251,8 +244,22 @@ If only one digit is given it will be padded with a leading 0.</li>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ConfusingData</strong> – when duration and from/to do are both given and do not match</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/constants.html#None" title="(in Python v2.7)">None</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#protocol.Month" title="protocol.Month"><code class="xref py py-class docutils literal"><span class="pre">Month</span></code></a></p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Month.get_dict">
+<code class="descname">get_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.get_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.get_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a dict with all values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -276,6 +283,7 @@ If only one digit is given it will be padded with a leading 0.</li>
 <li><a class="reference internal" href="#">Developer’s Manual</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
 <li><a class="reference internal" href="#files-and-formats">files and formats</a><ul>
+<li><a class="reference internal" href="#info-file">info file</a></li>
 <li><a class="reference internal" href="#csv-format">csv format</a><ul>
 <li><a class="reference internal" href="#available-tags">available tags</a></li>
 </ul>
@@ -336,7 +344,7 @@ If only one digit is given it will be padded with a leading 0.</li>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/devmanual.rst.txt"

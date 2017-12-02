@@ -24,11 +24,14 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body>  
+  <body>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -36,7 +39,7 @@
           <div class="body" role="main">
             
   <h1>Source code for protocol</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides the protocol class</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -90,7 +93,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> is not a valid month&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Month.append"><a class="viewcode-back" href="../devmanual.html#protocol.Month.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Month.append"><a class="viewcode-back" href="../devmanual.html#protocol.Month.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Month&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        append an entry to the protocol</span>
 
@@ -125,13 +128,32 @@
 
 
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;tag&#39;</span><span class="p">:</span><span class="n">tag</span><span class="p">,</span> <span class="s1">&#39;day&#39;</span><span class="p">:</span><span class="n">day</span><span class="p">,</span> <span class="s1">&#39;duration&#39;</span><span class="p">:</span><span class="n">duration</span><span class="p">,</span> 
-                                <span class="s1">&#39;from&#39;</span><span class="p">:</span><span class="n">from_unixtime</span><span class="p">,</span> <span class="s1">&#39;to&#39;</span><span class="p">:</span><span class="n">to_unixtime</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span><span class="n">description</span><span class="p">})</span>
+                                <span class="s1">&#39;from_unixtime&#39;</span><span class="p">:</span><span class="n">from_unixtime</span><span class="p">,</span> <span class="s1">&#39;to_unixtime&#39;</span><span class="p">:</span><span class="n">to_unixtime</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span><span class="n">description</span><span class="p">})</span>
 
 
         <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">+=</span> <span class="n">duration</span>
 
         <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span> <span class="o">-=</span> <span class="mi">1</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+
+<div class="viewcode-block" id="Month.get_dict"><a class="viewcode-back" href="../devmanual.html#protocol.Month.get_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;return a dict with all values&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+            <span class="s1">&#39;holidays_left_begin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">,</span>
+            <span class="s1">&#39;holidays_left&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours_account_begin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours_account&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="p">,</span>
+            <span class="s1">&#39;monthly_target&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours_balance&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="o">/</span><span class="mi">3600</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span><span class="p">,</span>
+            <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span>
+        <span class="p">}</span></div>
 
 
 
@@ -166,15 +188,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">months</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">add_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span><span class="n">Month</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span><span class="n">Month</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Year&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        add a protocol to :var:`self.protocols`</span>
 <span class="sd">        :param protocol: protocol to add.</span>
 <span class="sd">        self.protocols[protocol.month] = protocol</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
 
 <span class="c1"># vim: ai sts=4 ts=4 sw=4 expandtab</span>
 </pre></div>
@@ -211,7 +235,7 @@
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 
