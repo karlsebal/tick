@@ -13,30 +13,30 @@ There are two components doing the job:
 files and formats
 =================
 
-The controller files are stored in :file:`~/.tick/` where for each month a `csv` file is created.
+The controller files are stored in :file:`~/.tick/` where for each month a `<YYMM.csv` is created. Additionally there is an `.info` file containing the months values like working hour account and holidays left.
+
+info file
+---------
+
+The `.info` file contains the month’s values::
+
+   [<YYMM>]
+   WorkingHoursAccount = <value>
+   WorkingHoursWorthDay = <value>
+   HolidaysLeft = <value>
+
 
 csv format
 ----------
 
-The csv in principle follows the **standard format** of `comma separated values` [#csv_spec]_.
+The csv follows the **standard format** of `comma separated values` [#csv_spec]_.
 
-- first line
-
-   - `#`
-   - version
-   - month
-   - holidays left
-   - over/under hours in seconds
-   - hours a working day is worth
-
-- rest
-
-   - tag
-   - day
-   - duration in seconds
-   - from unixtime
-   - to unixtime
-   - description
+- tag
+- day
+- duration in seconds
+- from unixtime
+- to unixtime
+- description
 
 It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.
 
