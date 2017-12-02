@@ -52,12 +52,21 @@ class Month:
         if self.month < 1 or self.month > 12:
             raise InvalidDateException('%d is not a valid month' % self.month)
 
+    def get_next(self) -> 'Month':
+        """return the next Month"""
+        return Month(self.year if self.month < 12 else self.year + 1, 
+                    self.month + 1 if self.month < 12 else 1,
+                    self.holidays_left, 
+                    self.working_hours_account - self.monthly_target * 3600, 
+                    self.hours_worth_working_day)
+
+
     def append(self, tag:str, day:int, duration:int=0, from_unixtime:int=0, to_unixtime:int=0, description:str=None) -> 'Month':
         """
         append an entry to the protocol
 
         :param tag: tag
-        :param duration: duration of work
+        :param duration: duration of work in seconds
         :param from_unixtime: beginning of work in epoch
         :param to_unixtime: ending of work in epoch
         :param description: description
@@ -72,6 +81,7 @@ class Month:
             if duration != (to_unixtime - from_unixtime):
                 raise ConfusingDataException('duration given and calculated do not match')
 
+        # a whole day if no duration is given
         if not duration and not from_unixtime:
             duration = self.hours_worth_working_day * 3600
 

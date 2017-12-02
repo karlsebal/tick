@@ -74,7 +74,7 @@ class TestProtocol(unittest.TestCase):
         for entry in test_entries:
             month.append(*entry)
             print(50 * '*', '\n', month, '\n', 50 * '#')
-            print(month.get_dict(), 50 * '*', '\n')
+            print(month.get_dict(), '\n', 50 * '*')
 
 
         # only from or to given
@@ -115,6 +115,15 @@ class TestProtocol(unittest.TestCase):
 
         m = Month(hours_worth_working_day=8)
         self.assertEqual(m.monthly_target, 173.2)
+
+    def test_get_next(self):
+        m = Month(1, 12, 10, 0, 4)
+        m.append('e', 1, 50, None, None, 'bla')
+        m2 = m.get_next()
+        self.assertEqual(m2.month, 1)
+        self.assertEqual(m2.year, 2)
+        self.assertEqual(m2.working_hours_account, -311710)
+
 
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
