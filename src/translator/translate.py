@@ -94,7 +94,13 @@ for file in ls:
                 row[3] = from_unixtime
                 row[4] = to_unixtime
 
+                print('remove match from %r' % row[5])
+
+                row[5] = row[5][match.end():]
+
                 print(row)
+
+
 
             else:
                 print('no fromto found in %r' % row)
