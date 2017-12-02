@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 translate all csv files in the current directory from old to new `csv` format 
-and put them into :path:`./translated/`
+and put them into :file:`./translated/`
 """
 
 import pdb

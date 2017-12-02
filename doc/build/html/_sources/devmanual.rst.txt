@@ -13,7 +13,7 @@ There are two components doing the job:
 files and formats
 =================
 
-The controller files are stored in :file:`~/.tick/` where for each month a `<YYMM.csv` is created. Additionally there is an `.info` file containing the months values like working hour account and holidays left.
+The controller files are stored in :file:`~/.tick/` where for each month a `<YYYYMM>.csv` is created. Additionally there is an `.info` file containing the months values like working hour account and holidays left.
 
 info file
 ---------
