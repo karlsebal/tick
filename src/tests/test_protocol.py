@@ -1,6 +1,6 @@
 import unittest
 from protocol import Month as Protocol
-from protocol import Month
+from protocol import Month, Year
 from protocol import InvalidDateException
 from protocol import ConfusingDataException
 import time
@@ -123,6 +123,40 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(m2.month, 1)
         self.assertEqual(m2.year, 2)
         self.assertEqual(m2.working_hours_account, -311710)
+
+    def test_properties(self):
+        m = Month(hours_worth_working_day=4)
+        self.assertEqual(m.monthly_target, 86.6)
+        self.assertEqual(m.working_hours_balance, -311760)
+        m.hours_worth_working_day = 1
+        self.assertEqual(m.monthly_target, 21.65)
+        self.assertEqual(m.working_hours_balance, -77940)
+
+
+    def test_add_month(self):
+        y = Year(2017)
+        m = Month(2017, 1)
+        y.add_month(m)
+        # adding month a second time
+        self.assertRaises(ValueError, y.add_month ,m)
+        # wrong year
+        self.assertRaises(ValueError, y.add_month, Month(2016, 12))
+
+        # invalid combination
+        y.add_month(Month(month=4).get_next())
+        y.add_month(Month(month=7))
+
+        self.assertRaises(ValueError, y.validate)
+
+        # valid combination
+        y = Year(2017)
+        m = Month(month=4, hours_worth_working_day=4, holidays_left=2)
+        m.append('h', 1)
+        m.append('h', 2)
+        m.append('e',3, 8.6 * 3600)
+        y.add_month(m)
+        y.add_month(m.get_next())
+        y.validate()
 
 
 

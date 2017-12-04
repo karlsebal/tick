@@ -13,18 +13,7 @@ There are two components doing the job:
 files and formats
 =================
 
-The controller files are stored in :file:`~/.tick/` where for each month a `<YYYYMM>.csv` is created. Additionally there is an `.info` file containing the months values like working hour account and holidays left.
-
-info file
----------
-
-The `.info` file contains the month’s values::
-
-   [<YYMM>]
-   WorkingHoursAccount = <value>
-   WorkingHoursWorthDay = <value>
-   HolidaysLeft = <value>
-
+The controller files are stored in :file:`~/.tick/` where a :file:`protocol.csv` is created. 
 
 csv format
 ----------
@@ -32,6 +21,8 @@ csv format
 The csv follows the **standard format** of `comma separated values` [#csv_spec]_.
 
 - tag
+- year
+- month
 - day
 - duration in seconds
 - from unixtime
@@ -48,8 +39,6 @@ Tags available in version |release| are:
 +------------+-----------------------+
 | tag string | meaning               |
 +============+=======================+
-|#           | First Line            |
-+------------+-----------------------+
 |~           | Comment               |
 +------------+-----------------------+
 |e           | Entry                 |
@@ -60,6 +49,10 @@ Tags available in version |release| are:
 +------------+-----------------------+
 |i           | Illness               |
 +------------+-----------------------+
+|o           | Offset                |
++------------+-----------------------+
+
+`offset` is used to add holidays or working hours to account.
 
 .. fix vim syntax highlighting: ||
 

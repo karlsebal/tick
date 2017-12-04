@@ -2,6 +2,7 @@
 This module provides the protocol class
 """
 
+from typing import Union
 import time
 import datetime
 
@@ -18,7 +19,7 @@ class Month:
     
     
     :param holidays_left: number of holidays left, 0 if omitted
-    :param working_hours_account: credit of working hours in seconds, 0 if omitted
+    :param working_hours_account: credit of working hours in *seconds*, 0 if omitted
     :param yearmonth: integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
     :param hours_worth_working_day: number of hours a working day is worth
         If only one digit is given it will be padded with a leading 0.
@@ -26,16 +27,25 @@ class Month:
     """
 
     AVERAGE_WEEKS_PER_MONTH = 4.33
+    
 
-    def __init__(self, year:int=0, month:int=0, holidays_left:int=0, working_hours_account:int=0, hours_worth_working_day:int=4):
+    monthly_target = property(
+            lambda self: 5 * self.hours_worth_working_day * Month.AVERAGE_WEEKS_PER_MONTH)
+
+    working_hours_balance = property(
+            lambda self: self.working_hours_account - self.monthly_target * 3600)
+
+
+    def __init__(self, year:int=0, month:int=0, 
+                    holidays_left:int=0, working_hours_account:int=0, 
+                    hours_worth_working_day:int=4):
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
         self.holidays_left = self.holidays_left_begin
         self.working_hours_account_begin = working_hours_account
-        self.working_hours_account = self.working_hours_account_begin
         self.hours_worth_working_day = hours_worth_working_day
-        self.monthly_target = 5 * hours_worth_working_day * Month.AVERAGE_WEEKS_PER_MONTH
+        self.working_hours_account = working_hours_account 
 
         t = time.localtime()
 
@@ -51,6 +61,7 @@ class Month:
 
         if self.month < 1 or self.month > 12:
             raise InvalidDateException('%d is not a valid month' % self.month)
+
 
     def get_next(self) -> 'Month':
         """return the next Month"""
@@ -96,8 +107,14 @@ class Month:
             raise InvalidDateException('%s' % str(e))
 
 
-        self.protocol.append({'tag':tag, 'day':day, 'duration':duration, 
-                                'from_unixtime':from_unixtime, 'to_unixtime':to_unixtime, 'description':description})
+        self.protocol.append({
+                            'tag':tag, 
+                            'day':day, 
+                            'duration':duration, 
+                            'from_unixtime':from_unixtime, 
+                            'to_unixtime':to_unixtime, 
+                            'description':description
+                            })
 
 
         self.working_hours_account += duration
@@ -107,6 +124,13 @@ class Month:
 
         return self
 
+    def append_protocol(protocol: Union[list, tuple]) -> 'Month':
+        """
+        add a list or tuple of entries to the protocol
+        """
+
+        for entry in protocol:
+            self.append(entry)
 
 
     def get_dict(self) -> dict:
@@ -165,7 +189,43 @@ class Year:
         :param protocol: protocol to add.
         self.protocols[protocol.month] = protocol
         """
-        raise NotImplementedError
+
+        if month.month in self.months:
+            raise ValueError('Month %d already present' % month.month)
+        elif month.year != self.year:
+            raise ValueError('Year of Month %d does not match %d' % (month.year, self.year))
+
+        self.months[month.month] = month
+
+        return self
+
+
+    def validate(self) -> 'Year':
+        """ 
+        validate the chain of months 
+
+        :raises ValueError: when validation fails
+        :returns: self
+        """
+
+        former = None
+
+        for month in sorted(self.months):
+            current = self.months[month]
+
+            if not former:
+                former = current
+            else:
+                if former.working_hours_balance != current.working_hours_account_begin:
+                    raise ValueError('working_hours_balance from %d is %d and does not'
+                                    'match working_hours_account_begin from %d which is %d' % (
+                                        former.month, former.working_hours_balance, 
+                                        current.month, current.working_hours_account_begin))
+
+                if former.holidays_left != current.holidays_left_begin:
+                    raise ValueError('holidays_left from %d does not'
+                                    'match holidays_left_begin from %d' % (
+                                        former.month, current.month))
 
         return self
 
