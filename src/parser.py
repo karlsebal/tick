@@ -6,42 +6,41 @@ Parser for :program:`tick`
 from protocol import Month, Year
 from typing import Union
 
-def read_csv(file: str) -> list:
-    """
-    Read a csv and parse it into a list
-
-    :param file: csv file to parse
-    :return: csv as list
-    """
-    raise NotImplementedError
-    pass
-
-def parse_csv_protocol_to_year(protocol: Union[list, tuple]) -> Year:
+def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
     """
     parse a list of `csv` protocol entries into year. return year.
 
     :param protocol: protocol to parse
     """
 
-    year = Year(protocol[0][1])
-
     sorted_protocol = {}
 
     for entry in protocol:
-        sorted_protocol[entry[2]] = entry
 
-    raise NotImplementedError
+        year = entry.pop(1)
+        if year not in sorted_protocol:
+            sorted_protocol[year] = {}
 
+        month = entry.pop(1)
+        if month not in sorted_protocol[year]:
+            sorted_protocol[year][month] = []
 
-def parse_csv_protocol_to_years(protocol: Union[list, tuple]) -> list:
-    """
-    parse a list of `csv` protocol entries of different years.
-    return a list of years.
-    """
-    raise NotImplementedError
+        sorted_protocol[year][month].append(entry)
 
+    sorted_years = {}
+    former = None
 
-
+    for year in sorted_protocol:
+        for month in sorted_protocol[year]:
+            if not year in sorted_years:
+                sorted_years[year] = {}
+            if not month in sorted_years[year]:
+                sorted_years[year][month] = former.get_next() if former else Month(month=int(month))
+            sorted_years[year][month].append_protocol(sorted_protocol[year][month])
+            former = sorted_years[year][month]
+    
+    return sorted_years
+            
 
 if __name__ == '__main__':
     raise NotImplementedError
