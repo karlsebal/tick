@@ -3,11 +3,15 @@
 parser for :program:`tick`
 """
 
+import logging
 import pdb
-from protocol import Month
+
 from typing import Union
+
 import sys
 import csv
+from protocol import Month
+
 
 def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
     """
@@ -66,7 +70,7 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
 if __name__ == '__main__':
 
     if len(sys.argv) != 2:
-        print('usage: ' + sys.argv[0] + ' <protocol.csv')
+        print('usage: ' + sys.argv[0] + ' <protocol.csv>')
         exit(-1)
 
     with open(sys.argv[1]) as file:
