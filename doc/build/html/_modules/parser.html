@@ -39,22 +39,84 @@
           <div class="body" role="main">
             
   <h1>Source code for parser</h1><div class="highlight"><pre>
-<span></span><span class="ch">#!/usr/bin/python3</span>
+<span></span><span class="ch">#!/usr/bin/python3 -i</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Parser for :program:`tick`</span>
+<span class="sd">parser for :program:`tick`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="read_csv"><a class="viewcode-back" href="../devmanual.html#parser.read_csv">[docs]</a><span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="k">import</span> <span class="n">Month</span><span class="p">,</span> <span class="n">Year</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+
+<div class="viewcode-block" id="parse_csv_protocol"><a class="viewcode-back" href="../devmanual.html#parser.parse_csv_protocol">[docs]</a><span class="k">def</span> <span class="nf">parse_csv_protocol</span><span class="p">(</span><span class="n">protocol</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read a csv and parse it into a list</span>
+<span class="sd">    parse a list of `csv` protocol entries into year. return year.</span>
 
-<span class="sd">    :param file: csv file to parse</span>
-<span class="sd">    :return: csv as list</span>
+<span class="sd">    :param protocol: protocol to parse</span>
+
+<span class="sd">    ..  warning::</span>
+<span class="sd">        missing months are not padded. The :py:class:`protocol.Month`</span>
+<span class="sd">        resulting from the :py:meth:`protocol.Month.get_next` method </span>
+<span class="sd">        is adjusted to reflect the next month in chain</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+
+    <span class="c1"># first sort month and year, leafs are protocol lists</span>
+    <span class="n">sorted_protocol</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">protocol</span><span class="p">:</span>
+
+        <span class="c1"># adjust types</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+            <span class="n">entry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># year and month are at position 1 and 2</span>
+        <span class="c1"># we don’t need them anymore after retrieval</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sorted_protocol</span><span class="p">:</span>
+            <span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">month</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
+            <span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+
+    <span class="c1"># now fill that into a dict with Months as leafs </span>
+
+    <span class="n">sorted_years</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">former</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">sorted_protocol</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">sorted_years</span><span class="p">:</span>
+                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
+                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span> <span class="o">=</span> <span class="n">former</span><span class="o">.</span><span class="n">get_next</span><span class="p">()</span> <span class="k">if</span> <span class="n">former</span> <span class="k">else</span> <span class="n">Month</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">))</span>
+                <span class="c1"># adjust month.</span>
+                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">month</span>
+
+            <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span><span class="o">.</span><span class="n">append_protocol</span><span class="p">(</span><span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">])</span>
+            <span class="n">former</span> <span class="o">=</span> <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">sorted_years</span></div>
+            
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented yet&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;usage: &#39;</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &lt;protocol.csv&#39;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="n">parse_csv_protocol</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">year</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">year</span><span class="p">[</span><span class="n">y</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">year</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">pretty</span><span class="p">())</span>
 
 <span class="c1"># vim: ai sts=4 ts=4 sw=4 expandtab</span>
 </pre></div>

@@ -36,6 +36,9 @@ class Month:
     working_hours_balance = property(
             lambda self: self.working_hours_account - self.monthly_target * 3600)
 
+    working_hours = property(
+            lambda self: self.working_hours_account - self.working_hours_account_begin)
+
 
     def __init__(self, year:int=0, month:int=0, 
                     holidays_left:int=0, working_hours_account:int=0, 
@@ -64,7 +67,7 @@ class Month:
             raise InvalidDateException('%d is not a valid month' % self.month)
 
 
-    def get_next(self) -> 'Month':
+    def get_next(self, month=None) -> 'Month':
         """return the next Month"""
         return Month(self.year if self.month < 12 else self.year + 1, 
                     self.month + 1 if self.month < 12 else 1,
@@ -145,7 +148,7 @@ class Month:
             'working_hours_account_begin': self.working_hours_account_begin,
             'working_hours_account': self.working_hours_account,
             'monthly_target': self.monthly_target,
-            'working_hours_balance': self.working_hours_account/3600 - self.monthly_target,
+            'working_hours': self.working_hours,
             'protocol': self.protocol
         }
 
@@ -155,27 +158,40 @@ class Month:
         protocol = ''
 
         for entry in self.protocol:
-            protocol += str(entry) + '\n'
+            protocol += '%d.%d %.1fh (%d-%d): %s\n' % (
+                entry['day'],
+                self.month,
+                entry['duration'] / 3600,
+                entry['from_unixtime'] if entry['from_unixtime'] else 0,
+                entry['to_unixtime'] if entry['to_unixtime'] else 0,
+                entry['description']
+                )
+
+        decorator = 25 * '*'
 
         return (
-            25 * '*' + ' %04d-%02d ' + 25 * '*' +
+            '%s %04d-%02d %s'
             '\nHolidaysLeftBeginMonth: %dd'
             '\nHolidaysLeft: %dd'
             '\nMonthlyTarget: %.1fh'
-            '\nWorkingHoursAccountBeginMonth: %dh (%ds)'
-            '\nWorkingHoursAccount: %dh (%ds)'
+            '\nWorkingHoursAccountBeginMonth: %+.1fh (%ds)'
+            '\nWorkingHoursAccount: %.1fh (%ds)'
+            '\nWorkingHours: %.1fh (%ds)'
             '\nWorkingHoursBalance: %+.1fh'
-            25 * '*' + ' Protocol ' + 25 * '*' +
+            '\n%s Protocol %s' 
             '\n%s' % (
-                self.year, self.month,
+                decorator, self.year, self.month, decorator,
                 self.holidays_left_begin,
                 self.holidays_left,
                 self.monthly_target,
                 self.working_hours_account_begin / 3600, self.working_hours_account_begin,
                 self.working_hours_account / 3600, self.working_hours_account,
-                self.working_hours_account / 3600 - self.monthly_target,
+                self.working_hours /3600, self.working_hours,
+                self.working_hours_balance / 3600 ,
+                decorator, decorator,
                 protocol
-            )
+            ) + 
+            '\n' + 60 * '~'
         )
 
     def __str__(self):
@@ -187,7 +203,7 @@ class Month:
             'WorkingHoursAccountBeginMonth: %ds, '
             'WorkingHoursAccount: %ds, '
             'MonthlyTarget: %.1fh, '
-            'WorkingHoursBalance: %+.1fh, '
+            'WorkingHours: %+.1fh, '
             'Protocol: %r' % (
                 self.year,
                 self.month,
@@ -196,7 +212,7 @@ class Month:
                 self.working_hours_account_begin,
                 self.working_hours_account,
                 self.monthly_target,
-                self.working_hours_account/3600 - self.monthly_target,
+                self.working_hours_account - self.working_hours_account_begin,
                 self.protocol
             )
         )
