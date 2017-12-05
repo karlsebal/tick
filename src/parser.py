@@ -1,10 +1,10 @@
-#!/usr/bin/python3 -i
+#!/usr/bin/python3 
 """
 parser for :program:`tick`
 """
 
 import pdb
-from protocol import Month, Year
+from protocol import Month
 from typing import Union
 import sys
 import csv

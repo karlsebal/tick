@@ -195,20 +195,45 @@
 
 
 
-    <span class="k">def</span> <span class="nf">pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Month.pretty"><a class="viewcode-back" href="../devmanual.html#protocol.Month.pretty">[docs]</a>    <span class="k">def</span> <span class="nf">pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;return object as pretty string&quot;&quot;&quot;</span>
+
+        <span class="c1"># protocol first</span>
+
         <span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">:</span>
-            <span class="n">protocol</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">.</span><span class="si">%d</span><span class="s1"> </span><span class="si">%.1f</span><span class="s1">h (</span><span class="si">%d</span><span class="s1">-</span><span class="si">%d</span><span class="s1">): </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="c1"># pretty fromto</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">]:</span>
+                <span class="n">from_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">])</span>  
+                <span class="n">from_hour</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tm_hour</span>
+                <span class="n">from_minute</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tm_min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">from_hour</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">from_minute</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">]:</span>
+                <span class="n">to_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">])</span>  
+                <span class="n">to_hour</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tm_hour</span>
+                <span class="n">to_minute</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tm_min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">])</span> 
+                <span class="n">to_hour</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">to_minute</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="c1"># add entry</span>
+            <span class="n">protocol</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">.</span><span class="si">%d</span><span class="s1"> </span><span class="si">%.2f</span><span class="s1">h (</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">-</span><span class="si">%02d%02d</span><span class="s1">): </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">from_hour</span><span class="p">,</span> <span class="n">from_minute</span><span class="p">,</span>
+                <span class="n">to_hour</span><span class="p">,</span> <span class="n">to_minute</span><span class="p">,</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
                 <span class="p">)</span>
 
         <span class="n">decorator</span> <span class="o">=</span> <span class="mi">25</span> <span class="o">*</span> <span class="s1">&#39;*&#39;</span>
+
+        <span class="c1"># and all together now</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%04d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span>
@@ -233,7 +258,8 @@
                 <span class="n">protocol</span>
             <span class="p">)</span> <span class="o">+</span> 
             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="s1">&#39;~&#39;</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -259,33 +285,28 @@
         <span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">Year</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">year</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span><span class="o">.</span><span class="n">tm_year</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+<div class="viewcode-block" id="Season"><a class="viewcode-back" href="../devmanual.html#protocol.Season">[docs]</a><span class="k">class</span> <span class="nc">Season</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A :py:class:`Season` contains several Months in the same preset.</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">months</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="sd">    A preset is the set of monthly_target, holidays and working_hours_account</span>
+<span class="sd">    Normally this should apply to a year</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">add_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span><span class="n">Month</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Year&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">holidays_left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">working_hours_account</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">season</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Season.add_month"><a class="viewcode-back" href="../devmanual.html#protocol.Season.add_month">[docs]</a>    <span class="k">def</span> <span class="nf">add_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span><span class="n">Month</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Season&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        add a protocol to :var:`self.protocols`</span>
 <span class="sd">        :param protocol: protocol to add.</span>
 <span class="sd">        self.protocols[protocol.month] = protocol</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">month</span><span class="o">.</span><span class="n">month</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">months</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Month </span><span class="si">%d</span><span class="s1"> already present&#39;</span> <span class="o">%</span> <span class="n">month</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">month</span><span class="o">.</span><span class="n">year</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Year of Month </span><span class="si">%d</span><span class="s1"> does not match </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">month</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">months</span><span class="p">[</span><span class="n">month</span><span class="o">.</span><span class="n">month</span><span class="p">]</span> <span class="o">=</span> <span class="n">month</span>
-
-        <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Year&#39;</span><span class="p">:</span>
+<div class="viewcode-block" id="Season.validate"><a class="viewcode-back" href="../devmanual.html#protocol.Season.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Season&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        validate the chain of months </span>
 
@@ -312,7 +333,7 @@
                                     <span class="s1">&#39;match holidays_left_begin from </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
                                         <span class="n">former</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">current</span><span class="o">.</span><span class="n">month</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
 
 <span class="c1"># vim: ai sts=4 ts=4 sw=4 expandtab</span>
 </pre></div>

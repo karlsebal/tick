@@ -154,20 +154,45 @@ class Month:
 
 
 
-    def pretty(self):
+    def pretty(self) -> str:
+        """return object as pretty string"""
+
+        # protocol first
+
         protocol = ''
 
         for entry in self.protocol:
-            protocol += '%d.%d %.1fh (%d-%d): %s\n' % (
+            # pretty fromto
+            if entry['from_unixtime']:
+                from_time = time.gmtime(entry['from_unixtime'])  
+                from_hour = from_time.tm_hour
+                from_minute = from_time.tm_min
+            else:
+                from_hour = -1
+                from_minute = -1
+
+            if entry['to_unixtime']:
+                to_time = time.gmtime(entry['to_unixtime'])  
+                to_hour = to_time.tm_hour
+                to_minute = to_time.tm_min
+            else:
+                to_time = time.gmtime(entry['to_unixtime']) 
+                to_hour = -1
+                to_minute = -1
+
+            # add entry
+            protocol += '%d.%d %.2fh (%02d:%02d-%02d%02d): %s\n' % (
                 entry['day'],
                 self.month,
                 entry['duration'] / 3600,
-                entry['from_unixtime'] if entry['from_unixtime'] else 0,
-                entry['to_unixtime'] if entry['to_unixtime'] else 0,
+                from_hour, from_minute,
+                to_hour, to_minute,
                 entry['description']
                 )
 
         decorator = 25 * '*'
+
+        # and all together now
 
         return (
             '%s %04d-%02d %s'
@@ -194,6 +219,7 @@ class Month:
             '\n' + 60 * '~'
         )
 
+
     def __str__(self):
         return (
             'Year: %d, '
@@ -218,33 +244,28 @@ class Month:
         )
 
 
-class Year:
-    def __init__(self, year:int=None):
-        if not year:
-            self.year = time.localtime().tm_year
-        else:
-            self.year = year
+class Season:
+    """
+    A :py:class:`Season` contains several Months in the same preset.
 
-        self.months = {}
+    A preset is the set of monthly_target, holidays and working_hours_account
+    Normally this should apply to a year
+    """
 
-    def add_month(self, month:Month) -> 'Year':
+    def __init__(self, holidays_left = 0, working_hours_account = 0):
+        self.season = {}
+
+    def add_month(self, month:Month) -> 'Season':
         """
         add a protocol to :var:`self.protocols`
         :param protocol: protocol to add.
         self.protocols[protocol.month] = protocol
         """
 
-        if month.month in self.months:
-            raise ValueError('Month %d already present' % month.month)
-        elif month.year != self.year:
-            raise ValueError('Year of Month %d does not match %d' % (month.year, self.year))
-
-        self.months[month.month] = month
-
-        return self
+        raise NotImplementedError
 
 
-    def validate(self) -> 'Year':
+    def validate(self) -> 'Season':
         """ 
         validate the chain of months 
 

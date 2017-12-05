@@ -296,6 +296,62 @@ If only one digit is given it will be padded with a leading 0.</li>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="protocol.Month.pretty">
+<code class="descname">pretty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.pretty" title="Permalink to this definition">¶</a></dt>
+<dd><p>return object as pretty string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.Season">
+<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Season</code><span class="sig-paren">(</span><em>holidays_left=0</em>, <em>working_hours_account=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Season"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Season" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference internal" href="#protocol.Season" title="protocol.Season"><code class="xref py py-class docutils literal"><span class="pre">Season</span></code></a> contains several Months in the same preset.</p>
+<p>A preset is the set of monthly_target, holidays and working_hours_account
+Normally this should apply to a year</p>
+<dl class="method">
+<dt id="protocol.Season.add_month">
+<code class="descname">add_month</code><span class="sig-paren">(</span><em>month</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Season.add_month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Season.add_month" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a protocol to <a href="#id4"><span class="problematic" id="id5">:var:`self.protocols`</span></a>
+:param protocol: protocol to add.
+self.protocols[protocol.month] = protocol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#protocol.Season" title="protocol.Season"><code class="xref py py-class docutils literal"><span class="pre">Season</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Season.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Season.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Season.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>validate the chain of months</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><strong>ValueError</strong> – when validation fails</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#protocol.Season" title="protocol.Season"><code class="xref py py-class docutils literal"><span class="pre">Season</span></code></a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">self</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>

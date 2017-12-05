@@ -72,10 +72,10 @@
 
 
 \chapter{Contents}
-\label{\detokenize{index:contents}}\label{\detokenize{index:time-clock}}
+\label{\detokenize{index:time-clock}}\label{\detokenize{index:contents}}
 
 \section{User’s Manual}
-\label{\detokenize{usermanual:users-manual}}\label{\detokenize{usermanual::doc}}
+\label{\detokenize{usermanual::doc}}\label{\detokenize{usermanual:users-manual}}
 
 \subsection{CLI}
 \label{\detokenize{usermanual:cli}}
@@ -131,7 +131,7 @@ As with version 0.1a all configuration is hard coded. Changes are to be made in 
 
 
 \section{Developer’s Manual}
-\label{\detokenize{devmanual:developers-manual}}\label{\detokenize{devmanual::doc}}
+\label{\detokenize{devmanual::doc}}\label{\detokenize{devmanual:developers-manual}}
 
 \subsection{Overview}
 \label{\detokenize{devmanual:overview}}
@@ -450,13 +450,71 @@ return the next Month
 
 \end{fulllineitems}
 
+\index{pretty() (protocol.Month method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{devmanual:protocol.Month.pretty}}\pysiglinewithargsret{\sphinxbfcode{pretty}}{}{}
+return object as pretty string
+\begin{quote}\begin{description}
+\item[{Return type}] \leavevmode
+\sphinxhref{https://docs.python.org/2/library/functions.html\#str}{\sphinxcode{str}}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+
+\end{fulllineitems}
+
+\index{Season (class in protocol)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{devmanual:protocol.Season}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{protocol.}\sphinxbfcode{Season}}{\emph{holidays\_left=0}, \emph{working\_hours\_account=0}}{}
+A {\hyperref[\detokenize{devmanual:protocol.Season}]{\sphinxcrossref{\sphinxcode{Season}}}} contains several Months in the same preset.
+
+A preset is the set of monthly\_target, holidays and working\_hours\_account
+Normally this should apply to a year
+\index{add\_month() (protocol.Season method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{devmanual:protocol.Season.add_month}}\pysiglinewithargsret{\sphinxbfcode{add\_month}}{\emph{month}}{}
+add a protocol to {\color{red}\bfseries{}:var:{}`self.protocols{}`}
+:param protocol: protocol to add.
+self.protocols{[}protocol.month{]} = protocol
+\begin{quote}\begin{description}
+\item[{Return type}] \leavevmode
+{\hyperref[\detokenize{devmanual:protocol.Season}]{\sphinxcrossref{\sphinxcode{Season}}}}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{validate() (protocol.Season method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{devmanual:protocol.Season.validate}}\pysiglinewithargsret{\sphinxbfcode{validate}}{}{}
+validate the chain of months
+\begin{quote}\begin{description}
+\item[{Raises}] \leavevmode
+\sphinxstyleliteralstrong{ValueError} \textendash{} when validation fails
+
+\item[{Return type}] \leavevmode
+{\hyperref[\detokenize{devmanual:protocol.Season}]{\sphinxcrossref{\sphinxcode{Season}}}}
+
+\item[{Returns}] \leavevmode
+self
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
 
 \end{fulllineitems}
 
 
 
 \section{Changelog}
-\label{\detokenize{changelog:changelog}}\label{\detokenize{changelog::doc}}
+\label{\detokenize{changelog::doc}}\label{\detokenize{changelog:changelog}}
 \DUrole{versionmodified}{New in version 0.1a: }Documentation
 
 
