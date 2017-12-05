@@ -15,7 +15,7 @@ ls = os.listdir()
 
 for file in ls:
 
-    print('file: ', file)
+    print('\nprocessing file: ', file)
 
     protocol = []
 
@@ -31,13 +31,11 @@ for file in ls:
                     print('add ', line)
                     protocol.append(line)
 
-        print('ready reading ', file.name)
-
+        # first field of legacy csv is <DD.MM.>
         month = int(protocol[0][0].split(sep='.')[1])
-        print('seems to be month %d' % month)
 
+        # year is in the filename.
         year = int(file.name.split(sep='.')[1].split(sep='-')[0]) + 2000
-        print('seems to be year %02d' % year)
 
         protocol_ng = []
 
@@ -52,15 +50,16 @@ for file in ls:
             try:
                 idx = line[1].index(',')
                 line[1] = line[1][:idx] + '.' + line[1][idx + 1:]
-                print('change to %r' % line)
+                print('change comma to %r' % line)
             except ValueError:
                 print('unchanged')
 
             protocol_ng.append(['e', year, month, int(date[0]), int(float(line[1]) * 3600), None, None, line[2]])
 
-        print(protocol_ng)
+        print(52 * '*' + '\n', protocol_ng, '\n' + 52 * '*')
 
-        # fumble out fromto
+        print('fumble out fromto')
+
         for row in protocol_ng:
             match = re.match('^[0-9:]{1,5}-[0-9:]{1,5}', row[7])
             if match:
@@ -118,5 +117,9 @@ for file in ls:
 
         with open('translated/translated.csv', 'a') as file:
             csv.writer(file).writerows(protocol_ng)
+
+
+print('\n' + 52 * '#' + '\nprotocols are in ./translated.'
+    '\ntranslated/translated.csv is appended.')
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

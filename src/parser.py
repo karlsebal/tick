@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 """
-Parser for :program:`tick`
+parser for :program:`tick`
 """
 
+import pdb
 from protocol import Month, Year
 from typing import Union
 
@@ -13,19 +14,28 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
     :param protocol: protocol to parse
     """
 
+    # first sort month and year, leafs are protocol lists
     sorted_protocol = {}
 
     for entry in protocol:
 
-        year = entry.pop(1)
+        # adjust types
+        for i in range(1, 6):
+            entry[i] = int(entry[i]) if entry[i] else None
+
+        # year and month are at position 1 and 2
+        # we don’t need them anymore after retrieval
+        year = int(entry.pop(1))
         if year not in sorted_protocol:
             sorted_protocol[year] = {}
 
-        month = entry.pop(1)
+        month = int(entry.pop(1))
         if month not in sorted_protocol[year]:
             sorted_protocol[year][month] = []
 
         sorted_protocol[year][month].append(entry)
+
+    # now fill that into a dict with Months as leafs 
 
     sorted_years = {}
     former = None
