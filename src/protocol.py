@@ -258,15 +258,11 @@ class Month:
 
 class Season:
     """
-    A :py:class:`Season` contains several Months in the same preset.
-
-    A preset is the set of monthly_target, holidays and working_hours_account
-    Normally this should apply to a year
+    contains a chain of Months
     """
 
-    def __init__(self, holidays_left = 0, working_hours_account = 0):
-        self.protocols = {}
-        raise NotImplementedError
+    def __init__(self, t = 0, working_hours_account = 0):
+        self.months = []
 
     def add_month(self, month:Month) -> 'Season':
         """
@@ -275,7 +271,8 @@ class Season:
         self.protocols[protocol.month] = protocol
         """
 
-        raise NotImplementedError
+        self.months.append(month)
+        return self
 
 
     def validate(self) -> 'Season':
@@ -288,7 +285,7 @@ class Season:
 
         former = None
 
-        for month in sorted(self.months):
+        for month in self.months:
             current = self.months[month]
 
             if not former:
