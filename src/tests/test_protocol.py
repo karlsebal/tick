@@ -72,9 +72,11 @@ class TestProtocol(unittest.TestCase):
         month = Month(0, 0, 10, 0, 4)
 
         for entry in test_entries:
+            print(month.pretty())
+            print('append %r' % entry)
             month.append(*entry)
-            print(50 * '*', '\n', month, '\n', 50 * '#')
-            print(month.dump(), '\n', 50 * '*')
+
+        print(month.pretty())
 
 
         # only from or to given

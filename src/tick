@@ -2,6 +2,7 @@
 
 OUTFILE="$HOME/.tick/protocol.csv"
 OUTDIR="${OUTFILE%/*}"
+PARSER="$HOME/bin/particl"
 
 [[ ! -d $OUTDIR ]] && {
 	mkdir -vp "$OUTDIR" || exit -1
@@ -280,11 +281,11 @@ esac
 
 case $execute in
 	entry)
-		echo $date $((durations/3600)) \($durations\) $from-$to \($unix_from-$unix_to\) $comment 
+		echo $date $(bc <<< "scale=2; $durations/3600")h \($durations\) $from-$to \($unix_from-$unix_to\) $comment 
 		echo e,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" | tee -a $OUTFILE
 		;;
 	parse)
-		./parser.py $OUTFILE
+		$PARSER $OUTFILE
 		;;
 	*)
 		echo nothing to do
