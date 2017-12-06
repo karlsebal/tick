@@ -21,11 +21,12 @@ Options
 Commands
 ^^^^^^^^
 
-<number> <description>
-      appends a work <description> with the duration of <number>
+<HH[:MM]|:MM> <description>
+      appends a work <description> with the duration of <number>. Duration is given either in hours or 
+      hours and minutes separated by colon or minutes preceded by a colon.
 
-<from>-<to> <description>
-   appends a work <description> in the period from <from> to <to> where both are :program:`date` valid time strings.
+<HH:MM>-<HH:MM> <description>
+   appends a work <description> for the period given.
    
 parse
    parse the protocol related to the month set

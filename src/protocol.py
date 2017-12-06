@@ -67,10 +67,20 @@ class Month:
             raise InvalidDateException('%d is not a valid month' % self.month)
 
 
-    def get_next(self, month=None) -> 'Month':
-        """return the next Month"""
-        return Month(self.year if self.month < 12 else self.year + 1, 
-                    self.month + 1 if self.month < 12 else 1,
+    def get_next(self, year=None, month=None) -> 'Month':
+        """
+        return the next Month derived from the current
+
+        holidays left are transferred, working hours account
+        is adjusted.
+
+        :param month: you can give a different month. If omitted next
+            month is assumed.
+        
+        """
+
+        return Month(year if year else self.year if self.month < 12 else self.year + 1, 
+                    month if month else self.month + 1 if self.month < 12 else 1,
                     self.holidays_left, 
                     self.working_hours_account - self.monthly_target * 3600, 
                     self.hours_worth_working_day)
@@ -168,8 +178,8 @@ class Month:
                 from_hour = from_time.tm_hour
                 from_minute = from_time.tm_min
             else:
-                from_hour = -1
-                from_minute = -1
+                from_hour = 0
+                from_minute = 0
 
             if entry['to_unixtime']:
                 to_time = time.gmtime(entry['to_unixtime'])  
@@ -177,11 +187,11 @@ class Month:
                 to_minute = to_time.tm_min
             else:
                 to_time = time.gmtime(entry['to_unixtime']) 
-                to_hour = -1
-                to_minute = -1
+                to_hour = 0
+                to_minute = 0
 
             # add entry
-            protocol += '%d.%d %.2fh (%02d:%02d-%02d%02d): %s\n' % (
+            protocol += '%d.%d %.2fh (%02d:%02d-%02d:%02d): %s\n' % (
                 entry['day'],
                 self.month,
                 entry['duration'] / 3600,
@@ -230,6 +240,7 @@ class Month:
             'WorkingHoursAccount: %ds, '
             'MonthlyTarget: %.1fh, '
             'WorkingHours: %+.1fh, '
+            'WorkingHoursBalance: %+.1fh, '
             'Protocol: %r' % (
                 self.year,
                 self.month,
@@ -238,7 +249,8 @@ class Month:
                 self.working_hours_account_begin,
                 self.working_hours_account,
                 self.monthly_target,
-                self.working_hours_account - self.working_hours_account_begin,
+                self.working_hours,
+                self.working_hours_balance / 3600,
                 self.protocol
             )
         )
@@ -253,11 +265,12 @@ class Season:
     """
 
     def __init__(self, holidays_left = 0, working_hours_account = 0):
-        self.season = {}
+        self.protocols = {}
+        raise NotImplementedError
 
     def add_month(self, month:Month) -> 'Season':
         """
-        add a protocol to :var:`self.protocols`
+        add a protocol
         :param protocol: protocol to add.
         self.protocols[protocol.month] = protocol
         """

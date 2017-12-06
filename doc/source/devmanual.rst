@@ -39,8 +39,6 @@ Tags available in version |release| are:
 +------------+-----------------------+
 | tag string | meaning               |
 +============+=======================+
-|~           | Comment               |
-+------------+-----------------------+
 |e           | Entry                 |
 +------------+-----------------------+
 |h           | Holiday               |
@@ -52,7 +50,8 @@ Tags available in version |release| are:
 |o           | Offset                |
 +------------+-----------------------+
 
-`offset` is used to add holidays or working hours to account.
+`offset` is used to add working hours to account.
+When `holiday` is used with duration, holidays are added.
 
 .. fix vim syntax highlighting: ||
 

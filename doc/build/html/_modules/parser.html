@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>parser &#8212; tick 0.1a documentation</title>
+    <title>parser &#8212; tick 0.1b documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1a',
+        VERSION:     '0.1b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -44,11 +44,15 @@
 <span class="sd">parser for :program:`tick`</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pdb</span>
-<span class="kn">from</span> <span class="nn">protocol</span> <span class="k">import</span> <span class="n">Month</span>
+
 <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="k">import</span> <span class="n">Month</span>
+
 
 <div class="viewcode-block" id="parse_csv_protocol"><a class="viewcode-back" href="../devmanual.html#parser.parse_csv_protocol">[docs]</a><span class="k">def</span> <span class="nf">parse_csv_protocol</span><span class="p">(</span><span class="n">protocol</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -56,10 +60,6 @@
 
 <span class="sd">    :param protocol: protocol to parse</span>
 
-<span class="sd">    ..  warning::</span>
-<span class="sd">        missing months are not padded. The :py:class:`protocol.Month`</span>
-<span class="sd">        resulting from the :py:meth:`protocol.Month.get_next` method </span>
-<span class="sd">        is adjusted to reflect the next month in chain</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># first sort month and year, leafs are protocol lists</span>
@@ -94,9 +94,7 @@
                 <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">month</span> <span class="ow">in</span> <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
-                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span> <span class="o">=</span> <span class="n">former</span><span class="o">.</span><span class="n">get_next</span><span class="p">()</span> <span class="k">if</span> <span class="n">former</span> <span class="k">else</span> <span class="n">Month</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">))</span>
-                <span class="c1"># adjust month.</span>
-                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">month</span>
+                <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span> <span class="o">=</span> <span class="n">former</span><span class="o">.</span><span class="n">get_next</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">)</span> <span class="k">if</span> <span class="n">former</span> <span class="k">else</span> <span class="n">Month</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">))</span>
 
             <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span><span class="o">.</span><span class="n">append_protocol</span><span class="p">(</span><span class="n">sorted_protocol</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">])</span>
             <span class="n">former</span> <span class="o">=</span> <span class="n">sorted_years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">month</span><span class="p">]</span>
@@ -107,7 +105,7 @@
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;usage: &#39;</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &lt;protocol.csv&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;usage: &#39;</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; &lt;protocol.csv&gt;&#39;</span><span class="p">)</span>
         <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>

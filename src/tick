@@ -1,5 +1,16 @@
 #!/bin/bash
 
+OUTFILE="$HOME/.tick/protocol.csv"
+OUTDIR="${OUTFILE%/*}"
+
+[[ ! -d $OUTDIR ]] && {
+	mkdir -vp "$OUTDIR" || exit -1
+}
+
+[[ ! -f $OUTFILE ]] && {
+	touch $OUTFILE || exit -1
+}
+
 shopt -s extglob
 
 short_help () {
@@ -28,6 +39,8 @@ help() {
 
 		commands:
 
+		<HH[:MM]>			duration
+		<HH:MM>-<HH:MM>		from-to	
 		parse
 		state
 		report
@@ -49,7 +62,11 @@ EOF
 # and parameter demanded by an option
 
 # the stripped commandline
+# we will append to this so
+# the first entry will be 
+# ${stripped[1]}
 stripped=""
+
 # number of arguments to be skipped
 skip_next=0
 
@@ -105,7 +122,7 @@ for arg in "$@"; do
 		for option in "${arg[@]}"; do
 				case $option in
 
-					--) echo stop
+					--) echo -- stop reading arguments
 						stripped=("${stripped[@]}" "$@")
 						break 2
 						;;
@@ -183,42 +200,95 @@ fi
 	exit -1
 }
 
-echo $date
 echo amamedis is ${amamedis:-not set}
-echo stripped is ${stripped[@]}
-echo stripped length is ${#stripped[@]}
 
 # we are done parsing the options.
 # parse command
+case ${stripped[1]} in
 
-for command in ${stripped[@]}; do
-	echo got $command
+	"") ;; # catch empty
+
+	*([0-9])*(:)*([0-9]))
+		duration=${stripped[1]}
+
+		[[ $duration =~ : ]] && {
+			[[ ${a:0:1} == : ]] && { 
+				minutes=$duration
+				hours=0
+			} || {
+				hours=${duration%%:*}
+				minutes=${duration##*:}
+			}
+		} || {
+			hours=$duration
+			minutes=0
+		}
+
+		echo hours:$hours minutes:$minutes
+		durations=$((hours*3600+minutes*60))
+
+		unset from
+		unset to
+		unset unix_from
+		unset unix_to
+		unset stripped[1]
+
+		comment=${stripped[@]}
+
+		execute=entry
+		;;
+
+	*([0-9])*(:)*([0-9])-*([0-9])*(:)*([0-9]))
+		fromto=${stripped[1]}
+
+		from=${fromto%%-*}
+		[[ ! $from =~ : ]] && from="$from:00"
+
+		to=${fromto##*-}
+		[[ ! $to =~ : ]] && to="$to:00"
+
+		unix_from=$(date -d "$from" +%s) || {
+			echo error setting unix_from
+			exit -1
+		}
+
+		unix_to=$(date -d "$to" +%s) || {
+			echo error setting unix_to
+			exit -1
+		}
+
+		durations=$((unix_to-unix_from))
+		
+		unset stripped[1]
+		comment=${stripped[@]}
+		execute=entry
+		;;
+
+	parse)
+		execute=parse
+		;;
+
+	report) echo report.
+		execute=report
+		;;
 	
-	case $command in
+	*) echo command not found: ${stripped[@]}
+esac
 
-		*([0-9])) echo dur
-			duration=${stripped[0]}
-			echo $duration
-			unset stripped[0]
-			comment=${stripped[@]}
-			;;
 
-		*([0-9])-*([0-9])) echo froto
-			fromto=${stripped[0]}
-			echo $fromto
-			unset stripped[0]
-			comment=${stripped[@]}
-			;;
+# command execution
 
-		parse) echo parse.
-			;;
-
-		report) echo report.
-			;;
-	esac
-
-echo fromto $fromto duration $duration comment $comment
-done
-
+case $execute in
+	entry)
+		echo $date $((durations/3600)) \($durations\) $from-$to \($unix_from-$unix_to\) $comment 
+		echo e,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" | tee -a $OUTFILE
+		;;
+	parse)
+		./parser.py $OUTFILE
+		;;
+	*)
+		echo nothing to do
+		;;
+esac
 
 # vim: ai sw=4 sts=4 ts=4 noexpandtab

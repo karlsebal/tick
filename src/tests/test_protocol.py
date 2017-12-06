@@ -1,6 +1,6 @@
 import unittest
 from protocol import Month as Protocol
-from protocol import Month, Year
+from protocol import Month, Season
 from protocol import InvalidDateException
 from protocol import ConfusingDataException
 import time
@@ -51,7 +51,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(p.year, current_year)
 
     def test_init_and_string(self):
-        self.assertEqual(Protocol(2012, 9, 12, 12, 4).__str__(), 'Year: 2012, Month: 9, HolidaysLeftBeginMonth: 12d, HolidaysLeft: 12d, WorkingHoursAccountBeginMonth: 12s, WorkingHoursAccount: 12s, MonthlyTarget: 86.6h, WorkingHoursBalance: -86.6h, Protocol: []')
+        self.assertEqual(Protocol(2012, 9, 12, 12, 4).__str__(), 'Year: 2012, Month: 9, HolidaysLeftBeginMonth: 12d, HolidaysLeft: 12d, WorkingHoursAccountBeginMonth: 12s, WorkingHoursAccount: 12s, MonthlyTarget: 86.6h, WorkingHours: +0.0h, WorkingHoursBalance: -86.6h, Protocol: []')
 
     def test_append(self):
         # although calculating in unixtime we use small numbers for testing
@@ -74,7 +74,7 @@ class TestProtocol(unittest.TestCase):
         for entry in test_entries:
             month.append(*entry)
             print(50 * '*', '\n', month, '\n', 50 * '#')
-            print(month.get_dict(), '\n', 50 * '*')
+            print(month.dump(), '\n', 50 * '*')
 
 
         # only from or to given
@@ -117,12 +117,20 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(m.monthly_target, 173.2)
 
     def test_get_next(self):
-        m = Month(1, 12, 10, 0, 4)
+        m = Month(year=1, month=12, 
+            holidays_left=10, working_hours_account=0, hours_worth_working_day=4)
+
         m.append('e', 1, 50, None, None, 'bla')
         m2 = m.get_next()
         self.assertEqual(m2.month, 1)
         self.assertEqual(m2.year, 2)
         self.assertEqual(m2.working_hours_account, -311710)
+
+        m2 = m.get_next(month=2, year=5)
+        self.assertEqual(m2.month, 2)
+        self.assertEqual(m2.year, 5)
+        self.assertEqual(m2.working_hours_account, -311710)
+
 
     def test_properties(self):
         m = Month(hours_worth_working_day=4)
@@ -131,33 +139,5 @@ class TestProtocol(unittest.TestCase):
         m.hours_worth_working_day = 1
         self.assertEqual(m.monthly_target, 21.65)
         self.assertEqual(m.working_hours_balance, -77940)
-
-
-    def test_add_month(self):
-        y = Year(2017)
-        m = Month(2017, 1)
-        y.add_month(m)
-        # adding month a second time
-        self.assertRaises(ValueError, y.add_month ,m)
-        # wrong year
-        self.assertRaises(ValueError, y.add_month, Month(2016, 12))
-
-        # invalid combination
-        y.add_month(Month(month=4).get_next())
-        y.add_month(Month(month=7))
-
-        self.assertRaises(ValueError, y.validate)
-
-        # valid combination
-        y = Year(2017)
-        m = Month(month=4, hours_worth_working_day=4, holidays_left=2)
-        m.append('h', 1)
-        m.append('h', 2)
-        m.append('e',3, 8.6 * 3600)
-        y.add_month(m)
-        y.add_month(m.get_next())
-        y.validate()
-
-
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

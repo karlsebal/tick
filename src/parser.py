@@ -19,10 +19,6 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
 
     :param protocol: protocol to parse
 
-    ..  warning::
-        missing months are not padded. The :py:class:`protocol.Month`
-        resulting from the :py:meth:`protocol.Month.get_next` method 
-        is adjusted to reflect the next month in chain
     """
 
     # first sort month and year, leafs are protocol lists
@@ -57,9 +53,7 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
                 sorted_years[year] = {}
 
             if not month in sorted_years[year]:
-                sorted_years[year][month] = former.get_next() if former else Month(month=int(month))
-                # adjust month.
-                sorted_years[year][month].month = month
+                sorted_years[year][month] = former.get_next(month=month) if former else Month(month=int(month))
 
             sorted_years[year][month].append_protocol(sorted_protocol[year][month])
             former = sorted_years[year][month]

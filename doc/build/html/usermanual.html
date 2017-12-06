@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>User’s Manual &#8212; tick 0.1a documentation</title>
+    <title>User’s Manual &#8212; tick 0.1b documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1a',
+        VERSION:     '0.1b',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -83,10 +83,11 @@
 <div class="section" id="commands">
 <h3>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt>&lt;number&gt; &lt;description&gt;</dt>
-<dd>appends a work &lt;description&gt; with the duration of &lt;number&gt;</dd>
-<dt>&lt;from&gt;-&lt;to&gt; &lt;description&gt;</dt>
-<dd>appends a work &lt;description&gt; in the period from &lt;from&gt; to &lt;to&gt; where both are <strong class="program">date</strong> valid time strings.</dd>
+<dt>&lt;HH[:MM]|:MM&gt; &lt;description&gt;</dt>
+<dd>appends a work &lt;description&gt; with the duration of &lt;number&gt;. Duration is given either in hours or
+hours and minutes separated by colon or minutes preceded by a colon.</dd>
+<dt>&lt;HH:MM&gt;-&lt;HH:MM&gt; &lt;description&gt;</dt>
+<dd>appends a work &lt;description&gt; for the period given.</dd>
 <dt>parse</dt>
 <dd><p class="first">parse the protocol related to the month set</p>
 <p class="last">The file named <code class="file docutils literal"><span class="pre">Arbeitszeiten_&lt;YY-MM&gt;.xlsx</span></code> will be placed in the working directory</p>
@@ -100,7 +101,7 @@
 </div>
 <div class="section" id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>As with version 0.1a all configuration is hard coded. Changes are to be made in the shell script. See <a class="reference internal" href="devmanual.html"><span class="doc">Developer’s Manual</span></a> for details.</p>
+<p>As with version 0.1b all configuration is hard coded. Changes are to be made in the shell script. See <a class="reference internal" href="devmanual.html"><span class="doc">Developer’s Manual</span></a> for details.</p>
 </div>
 </div>
 
