@@ -5,8 +5,4 @@ protocol
 Classes:
  * ConfusingDataException
  * InvalidDateException
- * Month -- missing methods:
-
-   - pretty
- * Year
 
