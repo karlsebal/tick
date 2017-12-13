@@ -174,7 +174,7 @@ class Month:
         for entry in self.protocol:
             # pretty fromto
             if entry['from_unixtime']:
-                from_time = time.gmtime(entry['from_unixtime'])  
+                from_time = time.localtime(entry['from_unixtime'])  
                 from_hour = from_time.tm_hour
                 from_minute = from_time.tm_min
             else:
@@ -182,11 +182,11 @@ class Month:
                 from_minute = 0
 
             if entry['to_unixtime']:
-                to_time = time.gmtime(entry['to_unixtime'])  
+                to_time = time.localtime(entry['to_unixtime'])  
                 to_hour = to_time.tm_hour
                 to_minute = to_time.tm_min
             else:
-                to_time = time.gmtime(entry['to_unixtime']) 
+                to_time = time.localtime(entry['to_unixtime']) 
                 to_hour = 0
                 to_minute = 0
 
