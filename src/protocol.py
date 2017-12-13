@@ -258,7 +258,7 @@ class Month:
 
 class Season:
     """
-    contains a chain of Months
+    contains a valid chain of Months
     """
 
     def __init__(self, t = 0, working_hours_account = 0):
@@ -266,42 +266,32 @@ class Season:
 
     def add_month(self, month:Month) -> 'Season':
         """
-        add a protocol
+        append a protocol to the chain
+
         :param protocol: protocol to add.
-        self.protocols[protocol.month] = protocol
+        :raises ValueError: when validation fails
         """
+
+        # if it is not the first one added
+        # validate against last in chain
+        if self.months:
+            former = self.months[-1]
+
+            if former.working_hours_balance != month.working_hours_account_begin:
+                raise ValueError('working_hours_balance from %d is %d and does not'
+                                'match working_hours_account_begin from %d which is %d' % (
+                                    former.month, former.working_hours_balance, 
+                                    month.month, month.working_hours_account_begin))
+
+            if former.holidays_left != month.holidays_left_begin:
+                raise ValueError('holidays_left from %r does not'
+                                'match holidays_left_begin from %r' % (
+                                    former.dump(), month.dump()))
+
 
         self.months.append(month)
-        return self
-
-
-    def validate(self) -> 'Season':
-        """ 
-        validate the chain of months 
-
-        :raises ValueError: when validation fails
-        :returns: self
-        """
-
-        former = None
-
-        for month in self.months:
-            current = self.months[month]
-
-            if not former:
-                former = current
-            else:
-                if former.working_hours_balance != current.working_hours_account_begin:
-                    raise ValueError('working_hours_balance from %d is %d and does not'
-                                    'match working_hours_account_begin from %d which is %d' % (
-                                        former.month, former.working_hours_balance, 
-                                        current.month, current.working_hours_account_begin))
-
-                if former.holidays_left != current.holidays_left_begin:
-                    raise ValueError('holidays_left from %d does not'
-                                    'match holidays_left_begin from %d' % (
-                                        former.month, current.month))
 
         return self
+
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
