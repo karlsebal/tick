@@ -70,21 +70,22 @@ EOF
 entry() {
 
 	# feedback
-	printf "entry for "
+	printf "\nfor "
 	
 	[[ $identifier == a ]] && {
-		printf "amamedis:\n"
+		printf "amamedis "
 	} || {
-		printf "euratel:\n"
+		printf "euratel "
 	}
 
-	printf "for date $date enter\n"
+	printf "enter at date $date:\n"
+
 	printf "$(bc <<< "scale=2; $durations/3600") hours "
-	printf "($((durations/3600)):$((durations/60)) or "
+	printf "($((durations/3600)):$((durations%3600/60)) or "
 	printf "$((durations/60)) minutes) \n"
-	printf "${from:-from}-${to:-to not set}"
+	printf "with ${from:-from}-${to:-to not set}"
 	printf "${unix_from:+(}${unix_from:-}${unix_from:+-}${unix_to:-}${unix_to:+)} \n"
-	printf "with comment: $comment \n"
+	printf "and comment: $comment \n"
 
 	# entry
 	echo $identifier,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
@@ -96,6 +97,9 @@ entry() {
 # they are parsed into an array
 # if option demands an argument 
 # it’s read from $1 and $skip_next is increased
+# shifts are done for option, bunch of options
+# and parameter demanded by an option
+
 
 # the stripped commandline
 # we will append to this so
@@ -117,6 +121,9 @@ for arg in "$@"; do
 		((skip_next--))
 		continue
 	}
+
+	# shift for every command, option, bunch
+	shift
 
 	# options parsing
 	# if we encount an option we will unset arg[0]
@@ -174,6 +181,7 @@ for arg in "$@"; do
 						day=$1
 						# be grateful with missing leading zero
 						[[ ${#day} -eq 1 ]] && day=0$day
+						shift
 						((skip_next++))
 						;;
 
@@ -181,6 +189,7 @@ for arg in "$@"; do
 						month=$1
 						# be grateful with missing leading zero
 						[[ ${#month} -eq 1 ]] && month=0$month
+						shift
 						((skip_next++))
 						;;
 
@@ -188,17 +197,18 @@ for arg in "$@"; do
 						year=$1
 						# be grateful with missing leading zero
 						[[ ${#year} -eq 1 ]] && year=0$year
+						shift
 						((skip_next++))
 						;;
 
 					D|--date)
 						date=$1
+						shift
 						((skip_next++))
 						;;
 
 					Y|--yesterday) 
 						date=$(date -d 'yesterday' +%F)
-						echo
 						;;
 
 					a|--amamedis) 
@@ -208,7 +218,9 @@ for arg in "$@"; do
 					"") # ignore empty
 						;;
 
-					*) echo unrecognized option: \"-$option\"
+					*) 
+						echo unrecognized option: \"-$option\"
+						exit -1
 						;;
 
 				esac
@@ -266,7 +278,6 @@ case ${stripped[1]} in
 			minutes=0
 		}
 
-		$hours hours and $minutes minutes
 		durations=$((hours*3600+minutes*60))
 
 		unset from
