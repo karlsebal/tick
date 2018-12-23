@@ -50,10 +50,10 @@ Tags available in version |release| are:
 |o           | Offset                |
 +------------+-----------------------+
 
+.. fix vim syntax highlighting: ||
+
 `offset` is used to add working hours to account.
 When `holiday` is used with duration, holidays are added.
-
-.. fix vim syntax highlighting: ||
 
 .. [#csv_spec] https://en.wikipedia.org/wiki/Comma-separated_values
  

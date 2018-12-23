@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="0.2a"
+
 OUTFILE="$HOME/.tick/protocol.csv"
 OUTDIR="${OUTFILE%/*}"
 PARSER="$HOME/bin/particl"
@@ -35,15 +37,17 @@ help() {
 
 		-h	help
 		
-		-d	set day
-		-m	set month
-		-y	set year
-		-D	set date
-		-Y	set to yesterday
+		-d, --day       set day
+		-m, --month     set month
+		-y, --year      set year
+		-D              set date
+		-Y              set date to yesterday
 
 		Note: -D option is dominant over -dmy. With -Y mixed last given wins.
 
-		-a	set amamedis
+		-a, --amamedis  set amamedis
+
+		-V, --version   print version and exit
 
 
 		=========
@@ -175,6 +179,11 @@ for arg in "$@"; do
 						;;
 
 					h|\?|--help) help
+						;;
+
+					V|--version)
+						echo $VERSION
+						exit 0
 						;;
 
 					d|--day) 
