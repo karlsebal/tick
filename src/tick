@@ -68,7 +68,25 @@ EOF
 
 # append entry to $OUTFILE
 entry() {
-	echo $date $(bc <<< "scale=2; $durations/3600")h \($durations\) $from-$to \($unix_from-$unix_to\) $comment 
+
+	# feedback
+	printf "entry for "
+	
+	[[ $identifier == a ]] && {
+		printf "amamedis:\n"
+	} || {
+		printf "euratel:\n"
+	}
+
+	printf "for date $date enter\n"
+	printf "$(bc <<< "scale=2; $durations/3600") hours "
+	printf "($((durations/3600)):$((durations/60)) or "
+	printf "$((durations/60)) minutes) \n"
+	printf "${from:-from}-${to:-to not set}"
+	printf "${unix_from:+(}${unix_from:-}${unix_from:+-}${unix_to:-}${unix_to:+)} \n"
+	printf "with comment: $comment \n"
+
+	# entry
 	echo $identifier,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
 }
 
@@ -77,7 +95,7 @@ entry() {
 # if an option or bunch of options
 # they are parsed into an array
 # if option demands an argument 
-# its read from $1 and $skip_next is increased
+# it’s read from $1 and $skip_next is increased
 
 # the stripped commandline
 # we will append to this so
@@ -104,6 +122,7 @@ for arg in "$@"; do
 	# if we encount an option we will unset arg[0]
 	# and move options to $arg[0+n]
 
+
 	# do we have a bunch of options?
 	[[ $arg =~ ^-[^-] ]] && {
 		# parse letters into array…
@@ -120,6 +139,7 @@ for arg in "$@"; do
 		arg[1]=$arg
 		unset arg[0]
 	}
+
 
 	# now we have $arg clean which now contains
 	# either a command or command parameter or null
@@ -246,7 +266,7 @@ case ${stripped[1]} in
 			minutes=0
 		}
 
-		echo hours:$hours minutes:$minutes
+		$hours hours and $minutes minutes
 		durations=$((hours*3600+minutes*60))
 
 		unset from
