@@ -320,6 +320,11 @@ case ${stripped[1]} in
 			exit -1
 		}
 
+		# correct day transition
+		[ $unix_to -lt $unix_from ] && {
+			((unix_to+=86400))
+		}
+
 		durations=$((unix_to-unix_from))
 		
 		unset stripped[1]
