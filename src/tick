@@ -84,15 +84,15 @@ entry() {
 
 	printf "enter at date $date:\n"
 
-	printf "$(bc <<< "scale=2; $durations/3600") hours "
-	printf "($((durations/3600)):$((durations%3600/60)) or "
-	printf "$((durations/60)) minutes) \n"
+	printf "$(bc <<< "scale=2; $duration/3600") hours "
+	printf "($((duration/3600)):$((duration%3600/60)) or "
+	printf "$((duration/60)) minutes) \n"
 	printf "with ${from:-from}-${to:-to not set}"
 	printf "${unix_from:+(}${unix_from:-}${unix_from:+-}${unix_to:-}${unix_to:+)} \n"
 	printf "and comment: $comment \n"
 
 	# entry
-	echo $identifier,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
+	echo $identifier,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
 }
 
 # command line parsing
@@ -287,7 +287,7 @@ case ${stripped[1]} in
 			minutes=0
 		}
 
-		durations=$((hours*3600+minutes*60))
+		duration=$((hours*3600+minutes*60))
 
 		unset from
 		unset to
@@ -325,7 +325,7 @@ case ${stripped[1]} in
 			((unix_to+=86400))
 		}
 
-		durations=$((unix_to-unix_from))
+		duration=$((unix_to-unix_from))
 		
 		unset stripped[1]
 		comment=${stripped[@]}

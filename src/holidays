@@ -1,0 +1,246 @@
+#!/bin/bash
+#
+# enter holidays into protocol
+# not meant to be invoked manually
+# but by the controller.
+# minimal checking of input, no help
+#
+# we calculate holidays by first
+# determining easter monday and 
+# calculating the rest after that
+# according to validity in the given
+# state. static holidays are appended
+# as well.
+# after that entries are made for every
+# day being neither weekend nor holiday
+
+set -e
+
+# we expect exactly three arguments:
+# from_date and to_date and state
+[ $# -ne 6 ] && {
+	echo "${0##*/} <from> <to> <state> <id> <duration> <outfile>"
+	exit -1
+}
+
+ID=$4
+OUTFILE=$6
+DURATION=$((3600 * $5)) 
+
+# we expect date to be in a certain format
+for input in $1 $2; do
+	[[ $input =~ ^[[:digit:]]{8}$ ]] || {
+		echo "date format must be CCYYMMDD"
+		exit -1
+	}
+done
+
+# we expect reasonable dates
+year_diff=$((${2:0:4}-${1:0:4}))
+
+[ $year_diff -lt 0 ] && {
+	echo "from_year higher than to_year"
+	exit -1
+}
+
+[ $year_diff -gt 1 ] && {
+	echo "from and to more than one year apart"
+	exit -1
+}
+
+# we expect state code to be in a certain format
+[[ $3 =~ ^[[:alpha:]]{2}$ ]] || {
+	echo "state code must be two letters"
+	exit -1
+}
+
+# state code to upper
+set -- $1 $2 ${3^^}
+
+# Baden-Württemberg:BW
+# Bayern:BY
+# Berlin:BE
+# Brandenburg:BB
+# Bremen:HB
+# Hamburg:HH
+# Hessen:HE
+# Mecklenburg-Vorpommern:MV
+# Niedersachsen:NI
+# Nordrhein-Westfalen:NW
+# Rheinland-Pfalz:RP
+# Saarland:SL
+# Sachsen:SN
+# Sachsen-Anhalt:ST
+# Schleswig-Holstein:SH
+# Thüringen:TH
+#
+[[ "BW BY BE BB HB HH HE MV NI NW RP SL SN ST SH TH" =~ $3 ]] || {
+	echo "unknown state code: $3"
+	exit -1
+}
+
+# we are done checking the input
+# calculate holidays
+# for two years if neccessary
+
+# calculate easter monday for year $1
+# according to the formula of 
+# Gauß/Lichtenberg and store it in
+# the variable given in $2 as CCYYMMDD
+# $2 must no be one of the vars used
+# in the function
+#
+calculate_easter_sunday() {
+	# global variables are evil
+	local x k m s a d r og sz oe os em
+	# Jahr
+	x=$1
+	# Säkularzahl
+	k=$((x/100))
+	# säkulare Mondschaltung
+	m=$((15 + (3 * k + 3) / 4 - (8 * k + 13) / 25))
+	# säkulare Sonnenschaltung
+	s=$((2 - (3 * k + 3) / 4))
+	# Mondparameter
+	a=$((x % 19))
+	# Keim für den ersten Vollmond im Frühling
+	d=$(((19 * a + m) % 30))
+	# Kalendarische Korrekturgröße
+	r=$(((d + a / 11) / 29))
+	# Ostergrenze
+	og=$((21 + d - r))
+	# erster Sonntag im März
+	sz=$((7 - (x + x / 4 + s) % 7))
+	# Osterentfernung (Ostersonntag von Ostergrenze)
+	oe=$((7 - (og - sz) % 7))
+	# Datum Ostersonntag als Märzdatum
+	os=$((og + oe))
+
+	# calculate final date
+	[ $os -gt 31 ] && {
+		es=${1}04$((os - 31))
+	} || {
+		es=${1}03${os}
+	}
+
+	# sanitize date (one digit day)
+	[ ${#es} -eq 7 ] && {
+		es=${es:0:6}0${es:6:1}
+	}
+
+	# store
+	eval $2=$es
+}
+
+# check if two years are given
+years=${1:0:4}
+
+[ ${1:0:4} -ne ${2:0:4} ] && {
+	years="$years ${2:0:4}"
+}
+
+# calculate holidays
+holidays=""
+
+
+for year in $years; do
+
+	# Ostermontag 
+	calculate_easter_sunday $year easter_sunday
+
+	# general public
+	#
+	# Neujahr
+	holidays="$holidays $(date -d ${year}0101 +%F)"
+	# Tag der Arbeit
+	holidays="$holidays $(date -d ${year}0501 +%F)"
+	# Tag der deutschen Einheit
+	holidays="$holidays $(date -d ${year}1003 +%F)"
+	# Erster Weihnachtsfeiertag
+	holidays="$holidays $(date -d ${year}1225 +%F)"
+	# Zweiter Weihnachtsfeiertag
+	holidays="$holidays $(date -d ${year}1226 +%F)"
+	# Karfreitag
+	holidays=$holidays\ $(date -d "${easter_sunday} - 2 days" +%F)
+	# Ostermontag
+	holidays=$holidays\ $(date -d "${easter_sunday} + 1 day" +%F)
+	# Christi Himmelfahrt
+	holidays=$holidays\ $(date -d "${easter_sunday} + 39 days" +%F)
+	# Pfingstmontag
+	holidays=$holidays\ $(date -d "${easter_sunday} + 50 days" +%F)
+
+	# state related
+	#
+	# Heilige Drei Könige
+	[[ "BY BW ST" =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${year}0106" +%F)
+	}
+	# Ostersonntag
+	[[ BB =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${easter_sunday}" +%F)
+	}	
+	# Pfingstsonntag
+	[[ BB =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${easter_sunday} + 49 days" +%F)
+	}
+	# Mariä Himmelfahrt
+	[[ "BY SL" =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${year}0815" +%F)
+	}
+	# Reformationstag
+	[[ "BB MV SN ST TH" =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${year}1031" +%F)
+	}
+	# Allerheiligen
+	[[ "BW BY NW RP SL" =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${year}1101" +%F)
+	}
+	# Buß und Bettag
+	# Mittwoch zwischen 16. und 22. November
+	[[ SN =~ $3 ]] && {
+		for day in $(seq 16 22); do
+			[ $(date -d "${year}11${day}" +%w) -eq 3 ] && {
+				holidays=$holidays\ $(date -d "${year}11${day}" +%F)
+			}
+		done
+	}
+	# Fronleichnam
+	[[ "BW BY HE NW RP SL" =~ $3 ]] && {
+		holidays=$holidays\ $(date -d "${easter_sunday} + 60 days" +%F)
+	}
+done
+
+# remove leading whitespace
+holidays=${holidays# }
+
+# TODO remove
+for holiday in $holidays; do
+	echo $holiday
+done
+
+# make entries
+current_unix=$(($(date -d $1 +%s) - 86400))
+end_unix=$(date -d $2 +%s)
+
+while [ $current_unix -lt $end_unix ]; do
+
+	((current_unix+=86400))
+	current_date=$(date -d @$current_unix +%F)
+
+	# skip weekend
+	[ $(date -d $current_date +%u) -ge 6 ] && {
+		echo $current_date is weekend
+		continue
+	}
+	# skip holiday
+	[[ "$holidays" =~ $current_date ]] && {
+		echo $current_date is holiday
+		continue
+	}
+
+
+	echo $ID,$(date -d $current_date +%Y,%m,%d),$DURATION,,,\"\" | tee -a $OUTFILE
+
+done
+
+# vim: set ai sts=4 ts=4 sw=4 noet:
