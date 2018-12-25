@@ -1,0 +1,20 @@
+# Fdb version 3
+["pdflatex"] 1545605076 "tick.tex" "tick.pdf" "tick" 1545605088
+  "/etc/texmf/web2c/texmf.cnf" 1544034685 475 c0e671620eb5563b2130f56340a5fde8 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty" 1480098821 4732 d63eda807ac82cca2ca8488efd31a966 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/omsenc.dfu" 1487721667 2004 ac51aeac484f08c01026120d62677eca ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/ot1enc.dfu" 1487721667 3181 1cb3e9ad01f4a01127b2ffd821bfeec7 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/report.cls" 1480098821 22880 e7be6f7dd8c05d5108bf3a7d8cabe59a ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo" 1480098821 8292 e897c12e1e886ce77fe26afc5d470886 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.dfu" 1487721667 11255 9d97362866549d3d3c994b5f28d1b9b5 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def" 1487721667 7784 325a2a09984cb5c4ff230f9867145ad3 ""
+  "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1520210507 32485 c64754543d8ac501bea6e75e209ea521 ""
+  "/usr/share/texmf/web2c/texmf.cnf" 1520210507 32485 c64754543d8ac501bea6e75e209ea521 ""
+  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1544035228 724918 032c4c5a85dc20373e6ce2d4892633a1 ""
+  "cmap.sty" 0 -1 0 ""
+  "sphinxmanual.cls" 1545599839 3529 fa4d4e9f811425ef5966e441eeee9f7f ""
+  "tick.aux" 1545605076 8 a94a2480d3289e625eea47cd1b285758 ""
+  "tick.tex" 1545605075 21901 3625d61d64603022e52702f1e889c062 ""
+  (generated)
+  "tick.log"
+  "tick.pdf"

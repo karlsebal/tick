@@ -1,0 +1,411 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "TICK" "1" "Dec 23, 2018" "0.2" "tick"
+.SH NAME
+tick \- tick Documentation
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.sp
+\fItick\fP is a command line tool keeping track of your working hours, holiday, over\-/underhang which can be finally parsed into a nice and tidy \fBxlsx\fP file.
+.SH CONTENTS
+.SS User’s Manual
+.SS CLI
+.SS Options
+.INDENT 0.0
+.TP
+.B \-h, \-\-help
+.UNINDENT
+.sp
+help
+.INDENT 0.0
+.TP
+.B \-y, \-\-year <year>
+.UNINDENT
+.sp
+set year
+.INDENT 0.0
+.TP
+.B \-m, \-\-month <month>
+.UNINDENT
+.sp
+set month
+.INDENT 0.0
+.TP
+.B \-d, \-\-day <dom>
+.UNINDENT
+.sp
+set day of month
+.INDENT 0.0
+.TP
+.B \-D, \-\-date
+.UNINDENT
+.sp
+set date as if set via \fBdate \-d\fP
+.INDENT 0.0
+.TP
+.B \-Y, \-\-yesterday
+.UNINDENT
+.sp
+set date to yesterday
+.sp
+\fBNOTE:\fP
+.INDENT 0.0
+.INDENT 3.5
+The date given via \fI\%\-D\fP is parsed directly into \fBdate \-d\fP\&.
+.UNINDENT
+.UNINDENT
+.SS Commands
+.INDENT 0.0
+.TP
+.B <HH[:MM]|:MM> <description>
+appends a work <description> with the duration of <number>. Duration is given either in hours or
+hours and minutes separated by colon or minutes preceded by a colon.
+.TP
+.B <HH:MM>\-<HH:MM> <description>
+appends a work <description> for the period given.
+.TP
+.B parse
+parse the protocol related to the month set
+.sp
+The file named \fBArbeitszeiten_<YY\-MM>.xlsx\fP will be placed in the working directory
+.TP
+.B report
+parse the protocol related to the month set and send the \fIxlsx\fP file to a configured mail address
+.TP
+.B undo
+remove the last entry in the month’s protocol to which the date is set
+.UNINDENT
+.SS Configuration
+.sp
+As with version 0.2alpha all configuration is hard coded. Changes are to be made in the shell script. See devmanual for details.
+.SS Developer’s Manual
+.SS Overview
+.sp
+There are two components doing the job:
+.INDENT 0.0
+.IP \(bu 2
+the shell script as controller, making entries, calling the parser and sending reports.
+.IP \(bu 2
+the parser creating the \fIxlsx\fP files
+.UNINDENT
+.SS files and formats
+.sp
+The controller files are stored in \fB~/.tick/\fP where a \fBprotocol.csv\fP is created.
+.SS csv format
+.sp
+The csv follows the \fBstandard format\fP of \fIcomma separated values\fP [1]\&.
+.INDENT 0.0
+.IP \(bu 2
+tag
+.IP \(bu 2
+year
+.IP \(bu 2
+month
+.IP \(bu 2
+day
+.IP \(bu 2
+duration in seconds
+.IP \(bu 2
+from unixtime
+.IP \(bu 2
+to unixtime
+.IP \(bu 2
+description
+.UNINDENT
+.sp
+It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.
+.SS available tags
+.sp
+Tags available in version 0.2alpha are:
+.TS
+center;
+|l|l|.
+_
+T{
+tag string
+T}	T{
+meaning
+T}
+_
+T{
+e
+T}	T{
+Entry
+T}
+_
+T{
+h
+T}	T{
+Holiday
+T}
+_
+T{
+c
+T}	T{
+Overtime Compensation
+T}
+_
+T{
+i
+T}	T{
+Illness
+T}
+_
+T{
+o
+T}	T{
+Offset
+T}
+_
+.TE
+.sp
+\fIoffset\fP is used to add working hours to account.
+When \fIholiday\fP is used with duration, holidays are added.
+.IP [1] 5
+\fI\%https://en.wikipedia.org/wiki/Comma\-separated_values\fP
+.SS xlsx scheme
+.sp
+The \fIexcel\fP file consists of roughly 3 Parts:
+.INDENT 0.0
+.IP \(bu 2
+.INDENT 2.0
+.TP
+.B Header with
+.INDENT 7.0
+.IP \(bu 2
+Name
+.IP \(bu 2
+Month
+.IP \(bu 2
+Overview
+.UNINDENT
+.UNINDENT
+.IP \(bu 2
+Body
+.IP \(bu 2
+.INDENT 2.0
+.TP
+.B Footer with
+.INDENT 7.0
+.IP \(bu 2
+legend
+.IP \(bu 2
+infoline containing technical informations like parsing date and so on
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Legacy Formats
+.sp
+The predecessor \fBetime\fP used two files:
+.INDENT 0.0
+.IP \(bu 2
+the tracker put the data of a month into \fB~/.etime/<YY\-MM.elog\fP whith each line in the form \fB<DD> <duration in hours in float> <description>\fP
+.IP \(bu 2
+.INDENT 2.0
+.TP
+.B when parsing two files where created:
+.INDENT 7.0
+.IP \(bu 2
+a \fBcsv\fP with each line of the form \fB<DD>.<MM>.;<Duration in float, comma as separator>;"<description>"\fP
+.IP \(bu 2
+a \fBxlsx\fP containing a bare, unsorted list with full dates
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS configuration
+.sp
+Configuration is hard coded. Change the email address the report is sent to in the shell script.
+.SS Components
+.SS Controller
+.SS Parser
+.SS API
+.SS Parser
+.SS parser
+.sp
+parser for \fBtick\fP
+.INDENT 0.0
+.TP
+.B parser.parse_csv_protocol(protocol)
+parse a list of \fIcsv\fP protocol entries into year. return year.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBprotocol\fP (\fI\%Union\fP[\fI\%list\fP, \fI\%tuple\fP]) \-\- protocol to parse
+.TP
+.B Return type
+\fI\%dict\fP
+.UNINDENT
+.UNINDENT
+.SS protocol
+.sp
+This module provides the Month and Year classes
+.INDENT 0.0
+.TP
+.B exception protocol.ConfusingDataException
+.UNINDENT
+.INDENT 0.0
+.TP
+.B exception protocol.InvalidDateException
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class protocol.Month(year=0, month=0, holidays_left=0, working_hours_account=0, hours_worth_working_day=4)
+Provides the work time protocol for one month
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBholidays_left\fP (\fI\%int\fP) \-\- number of holidays left, 0 if omitted
+.IP \(bu 2
+\fBworking_hours_account\fP (\fI\%int\fP) \-\- credit of working hours in \fIseconds\fP, 0 if omitted
+.IP \(bu 2
+\fByearmonth\fP \-\- integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing.
+.IP \(bu 2
+\fBhours_worth_working_day\fP (\fI\%int\fP) \-\- number of hours a working day is worth
+If only one digit is given it will be padded with a leading 0.
+.UNINDENT
+.TP
+.B Raises
+\fBInvalidDateException\fP \-\- raised when the Date given is nonsense.
+.UNINDENT
+.INDENT 7.0
+.TP
+.B append(tag, day, duration=0, from_unixtime=0, to_unixtime=0, description=None)
+append an entry to the protocol
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBtag\fP (\fI\%str\fP) \-\- tag
+.IP \(bu 2
+\fBduration\fP (\fI\%int\fP) \-\- duration of work in seconds
+.IP \(bu 2
+\fBfrom_unixtime\fP (\fI\%int\fP) \-\- beginning of work in epoch
+.IP \(bu 2
+\fBto_unixtime\fP (\fI\%int\fP) \-\- ending of work in epoch
+.IP \(bu 2
+\fBdescription\fP (\fI\%Optional\fP[\fI\%str\fP]) \-\- description
+.UNINDENT
+.TP
+.B Raises
+\fBConfusingData\fP \-\- when duration and from/to do are both given and do not match
+.TP
+.B Return type
+\fI\%Month\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B append_protocol(protocol)
+add a list or tuple of entries to the protocol
+.INDENT 7.0
+.TP
+.B Return type
+\fI\%Month\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B dump()
+return a dict with all values
+.INDENT 7.0
+.TP
+.B Return type
+\fI\%dict\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B get_next(year=None, month=None)
+return the next Month derived from the current
+.sp
+holidays left are transferred, working hours account
+is adjusted.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBmonth\fP \-\- you can give a different month. If omitted next
+month is assumed.
+.TP
+.B Return type
+\fI\%Month\fP
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pretty()
+return object as pretty string
+.INDENT 7.0
+.TP
+.B Return type
+\fI\%str\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B class protocol.Season(t=0, working_hours_account=0)
+contains a valid chain of Months
+.INDENT 7.0
+.TP
+.B add_month(month)
+append a protocol to the chain
+.INDENT 7.0
+.TP
+.B Parameters
+\fBprotocol\fP \-\- protocol to add.
+.TP
+.B Raises
+\fI\%ValueError\fP \-\- when validation fails
+.TP
+.B Return type
+\fI\%Season\fP
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.SS Changelog
+.sp
+New in version 0.1: Initial Version.
+
+.SH INDICES AND TABLES
+.INDENT 0.0
+.IP \(bu 2
+genindex
+.IP \(bu 2
+modindex
+.IP \(bu 2
+search
+.UNINDENT
+.SH AUTHOR
+k
+.SH COPYRIGHT
+2017, k
+.\" Generated by docutils manpage writer.
+.
