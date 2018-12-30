@@ -1,10 +1,31 @@
 #!/bin/bash
 
-VERSION="0.2a"
+VERSION="0.2.1a"
 
-OUTFILE="$HOME/.tick/protocol.csv"
-OUTDIR="${OUTFILE%/*}"
-PARSER="$HOME/bin/particl"
+TICKDIR=$HOME/.tick
+
+[ -d "$TICKDIR" ] || {
+	mkdir -p "$TICKDIR"
+}
+
+[ -f $TICKDIR/config ] && {
+	. $TICKDIR/config
+} || {
+	echo $TICKDIR/config not found
+}
+
+[ ${#OUTDIR} -le 0 ] && {
+	echo '$OUTDIR not configured'
+}
+
+[ ${#BINDIR} -le 0 ] && {
+	echo '$BINDIR not configured'
+}
+
+OUTFILE="$OUTDIR/protocol.csv"
+PARSER="$BINDIR/parser.py"
+HOLIDAYS="$BINDIR/holidays"
+
 
 # check outdir existence
 # create if none
@@ -54,16 +75,20 @@ help() {
 		commands:
 		=========
 
-		<HH[:MM]>         duration
-		<HH:MM>-<HH:MM>   from-to	
+		<HH[:MM]>                       duration
+		<HH:MM>-<HH:MM>                 from-to	
 
-		parse             parse protocol
+		<[CC]YYMMDD> <[CC]YY/MM/DD>     holiday
+        <[CC]YYMMDD>-<[CC]YYMMDD>       holidays
+        <[CC]YY/MM/DD>-<[CC]YY/MM/DD>   holidays
+
+		parse                           parse protocol
 		state
 		report
-		sync              sync protocol to backup location
+		sync                            sync protocol to backup location
 
-		undo              undo last entry
-		redo              redo last undo
+		undo                            undo last entry
+		redo                            redo last undo
 
 		completion        install shell completion
 
