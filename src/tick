@@ -2,6 +2,9 @@
 
 VERSION="0.2.1a"
 
+shopt -s extglob
+set -e
+
 TICKDIR=$HOME/.tick
 
 [ -d "$TICKDIR" ] || {
@@ -12,14 +15,27 @@ TICKDIR=$HOME/.tick
 	. $TICKDIR/config
 } || {
 	echo $TICKDIR/config not found
+	exit -1
 }
 
-[ ${#OUTDIR} -le 0 ] && {
+[ ${#OUTDIR} -eq 0 ] && {
 	echo '$OUTDIR not configured'
+	exit -1
 }
 
-[ ${#BINDIR} -le 0 ] && {
+[ ${#BINDIR} -eq 0 ] && {
 	echo '$BINDIR not configured'
+	exit -1
+}
+
+[ ${#WORKDAY_HOURS} -eq 0 ] && {
+	echo '$WORKDAY_HOURS not configured'
+	exit -1
+}
+
+[ ${#STATE} -eq 0 ] && {
+	echo '$STATE not configured'
+	exit -1
 }
 
 OUTFILE="$OUTDIR/protocol.csv"
@@ -39,7 +55,6 @@ HOLIDAYS="$BINDIR/holidays"
 	touch $OUTFILE || exit -1
 }
 
-shopt -s extglob
 
 # give a short usage
 short_help () {
@@ -78,9 +93,10 @@ help() {
 		<HH[:MM]>                       duration
 		<HH:MM>-<HH:MM>                 from-to	
 
-		<[CC]YYMMDD> <[CC]YY/MM/DD>     holiday
-        <[CC]YYMMDD>-<[CC]YYMMDD>       holidays
-        <[CC]YY/MM/DD>-<[CC]YY/MM/DD>   holidays
+		<[CC]YY/MM/DD>                  holiday
+		<[CC]YY/MM/DD>-<[CC]YY/MM/DD>   holidays
+        
+        Note: XX/YY/ZZZZ will lead to funny results
 
 		parse                           parse protocol
 		state
@@ -297,11 +313,12 @@ case ${stripped[1]} in
 
 	# duration given
 	*([0-9])*(:)*([0-9]))
+
 		duration=${stripped[1]}
 
 		[[ $duration =~ : ]] && {
-			[[ ${a:0:1} == : ]] && { 
-				minutes=$duration
+			[[ ${duration:0:1} == : ]] && { 
+				minutes=${duration:1}
 				hours=0
 			} || {
 				hours=${duration%%:*}
@@ -356,6 +373,53 @@ case ${stripped[1]} in
 		comment=${stripped[@]}
 
 		entry
+		;;
+	
+	# holiday given
+	+([0-9])/+([0-9])/+([0-9]))
+        
+		# remove slashes
+		day=${stripped[1]//\/}
+
+        # sanitize date
+        # prepend leading century if neccessary
+		if [ ${#day} -eq 6 ]; then
+            day=$(date +%C)$day
+        elif [ ${#day} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		$HOLIDAYS $day $day $STATE h $WORKDAY_HOURS $OUTFILE
+		;;
+		
+	# holidays given
+	+([0-9])/+([0-9])/+([0-9])-+([0-9])/+([0-9])/+([0-9]))
+
+        # remove slashes
+        stripped[1]=${stripped[1]//\/}
+
+        # get from and to
+		from=${stripped[1]%-*}
+		to=${stripped[1]#*-}
+
+        # sanitize date
+        # prepend leading century if neccessary
+		if [ ${#from} -eq 6 ]; then
+            from=$(date +%C)$from
+        elif [ ${#from} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		if [ ${#to} -eq 6 ]; then
+            to=$(date +%C)$to
+        elif [ ${#to} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		$HOLIDAYS $from $to $STATE h $WORKDAY_HOURS $OUTFILE
 		;;
 
 	parse)

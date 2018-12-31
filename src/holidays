@@ -213,10 +213,6 @@ done
 # remove leading whitespace
 holidays=${holidays# }
 
-# TODO remove
-for holiday in $holidays; do
-	echo $holiday
-done
 
 # make entries
 current_unix=$(($(date -d $1 +%s) - 86400))
