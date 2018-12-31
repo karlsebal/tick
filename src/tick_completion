@@ -1,0 +1,40 @@
+_tick() {
+	local cur prev shortopts longopts commands
+
+	shortopts="-h -d -m -y -D -Y -a -V"
+	longopts="--day --month --year --amamedis --version"
+	commands="parse state report sync undo redo completion"
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# if previous is completion there is no option but
+	# to remove it
+	[[ $prev == completion ]] && {
+		COMPREPLY="remove"
+		return
+	}
+
+	# if previous is an option or command there is nothing left 
+	# to complete
+	[[ "$shortopts $longopts $commands" =~ $prev ]] && {
+		return
+	}
+
+	# completion
+	case $cur in
+		--*)
+			COMPREPLY=($(compgen -W "$longopts" -- $cur))
+			;;
+		-*)
+			COMPREPLY=($(compgen -W "$longopts $shortopts" -- $cur))
+			;;
+		*)
+			COMPREPLY=($(compgen -W "$longopts $shortopts $commands" -- $cur))
+			;;
+	esac
+}
+
+complete -F _tick tick
+
+# vim: set ai sw=4 ts=4 sts=4 noet ft=sh:

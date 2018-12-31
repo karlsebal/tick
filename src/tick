@@ -452,8 +452,32 @@ case ${stripped[1]} in
 		;;
 	
 	completion)
-		echo not implemented yet
-		exit 1
+		if [[ ${stripped[2]} == "install" ]]; then
+			echo ". $BINDIR/tick_completion" >> ~/.bash_completion
+			echo completion sourced in ~/.bash_completion
+			exit
+		elif [[ ${stripped[2]} == "remove" ]]; then
+			# we gonna go until all is removed
+			# in case of multiple installs
+			set +e
+			until [ $? -ne 0 ]; do
+				ed -s ~/.bash_completion <<-EOF 
+				/^\..*tick_completion$
+				d
+				w
+				q
+				EOF
+			done
+			set -e
+			echo completion removed in ~/.bash_completion
+			exit 
+		elif [[ ! ${stripped[2]} ]]; then
+			echo either \"remove\" or \"install\" is required
+			exit 1
+		else 
+			echo ${stripped[2]} is unknown
+			exit 1
+		fi
 		;;
 
 	
