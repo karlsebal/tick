@@ -41,19 +41,19 @@ Tags available in version |release| are:
 +============+=======================+
 |e           | Entry                 |
 +------------+-----------------------+
-|h           | Holiday               |
+|a           | Entry for amamedis    |
 +------------+-----------------------+
-|c           | Overtime Compensation |
+|h           | Holiday               |
 +------------+-----------------------+
 |i           | Illness               |
 +------------+-----------------------+
-|o           | Offset                |
+|c           | Carryover             |
 +------------+-----------------------+
 
-`offset` is used to add working hours to account.
-When `holiday` is used with duration, holidays are added.
-
 .. fix vim syntax highlighting: ||
+
+`carryover` is used to add working hours to account.
+When `holiday` is used with day `None` or `Zero`, holidays are added.
 
 .. [#csv_spec] https://en.wikipedia.org/wiki/Comma-separated_values
  

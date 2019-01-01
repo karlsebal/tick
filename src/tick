@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.2.2a"
+VERSION="0.3a"
 
 shopt -s extglob
 set -e
@@ -25,11 +25,6 @@ TICKDIR=$HOME/.tick
 
 [ ${#BINDIR} -eq 0 ] && {
 	echo '$BINDIR not configured'
-	exit -1
-}
-
-[ ${#WORKDAY_HOURS} -eq 0 ] && {
-	echo '$WORKDAY_HOURS not configured'
 	exit -1
 }
 
@@ -90,13 +85,18 @@ help() {
 		commands:
 		=========
 
-		<HH[:MM]>                       duration
+		<HH[:MM]> <:MM>                 duration
 		<HH:MM>-<HH:MM>                 from-to	
+
 
 		<[CC]YY/MM/DD> <h[oliday]/i[llness]>	holiday/illness
 		<[CC]YY/MM/DD>-<[CC]YY/MM/DD> <h/i>		holidays/illness
         
         Note: XX/YY/ZZZZ will lead to funny results
+
+
+		add <h[holidays]> <days>         add holidays to account
+		add <c[arryover]> <HH[:MM]>     add carryover
 
 		parse                           parse protocol
 		state
@@ -381,7 +381,7 @@ case ${stripped[1]} in
 
 		if [[ ${stripped[2]} =~ ^h ]]; then
 			tag=h
-		elif [[ ${stripped[2]} == ^i ]]; then
+		elif [[ ${stripped[2]} =~ ^i ]]; then
 			tag=i
 		else
 			echo either \"holiday\" or \"illness\" must be given
@@ -406,7 +406,7 @@ case ${stripped[1]} in
 			exit -1
         fi
 
-		$HOLIDAYS $day $day $STATE $tag $WORKDAY_HOURS $OUTFILE
+		$HOLIDAYS $day $day $STATE $tag $OUTFILE
 		;;
 		
 	# holidays given
@@ -435,7 +435,66 @@ case ${stripped[1]} in
 			exit -1
         fi
 
-		$HOLIDAYS $from $to $STATE $tag $WORKDAY_HOURS $OUTFILE
+		$HOLIDAYS $from $to $STATE $tag $OUTFILE
+		;;
+	
+	# add holiday or carryover
+	add)
+		
+		# figure out identifier
+		if [[ ${stripped[2]} =~ ^h ]]; then
+			identifier=h
+			comment=Urlaubstage
+		elif [[ ${stripped[2]} =~ ^c ]]; then
+			identifier=c
+			comment=Übertrag
+		else
+			echo ${stripped[2]} is unknown
+			exit -1
+		fi
+
+		# make sure value is given
+		[[ ${#stripped[3]} -eq 0 || ${stripped[3]} == : ]] && {
+			echo no value given
+			exit -1
+		}
+
+		if [[ $identifier == h ]]; then
+			# check value given
+			[[ ${stripped[3]} =~ [^[:digit:]] ]] && {
+				echo value for holidays must be integer
+				exit -1
+			} || {
+				duration=${stripped[3]}
+			}
+			echo add $duration holidays
+		else
+			# get duration
+			[[ ${stripped[3]} =~ ^[[:digit:]]*:{0,1}[[:digit:]]*$ ]] || {
+				echo value must be "[HH]:[MM]"
+				exit -1
+			}
+
+			# containing a colon hours and minutes are given
+			[[ ${stripped[3]} =~ : ]] && {
+				hours=${stripped[3]%:*}
+				minutes=${stripped[3]#*:}
+				duration=$(( (hours * 60 + minutes) * 60 ))
+
+			# if not so duration is hours
+			} || {
+				duration=${stripped[3]}
+				duration=$((duration*3600))
+				unset minutes
+				hours=${stripped[3]}
+			}
+
+			echo add ${hours:-0}h ${minutes:-0}\' working hours
+		fi
+
+
+		# those entries are made with day set to 0
+		echo $identifier,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
 		;;
 
 	parse)

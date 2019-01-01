@@ -106,7 +106,7 @@ class Month:
             if duration != (to_unixtime - from_unixtime):
                 raise ConfusingDataException('duration given and calculated do not match')
 
-        # a whole day if no duration is given
+        # a whole day if neither duration nor fromto is given
         if not duration and not from_unixtime:
             duration = self.hours_worth_working_day * 3600
 
@@ -114,13 +114,40 @@ class Month:
         if not duration:
             duration = to_unixtime - from_unixtime
 
-        # validate date
-        try:
-            datetime.date(self.year, self.month, day)
-        except ValueError as e:
-            raise InvalidDateException('%s' % str(e))
+        # if day is None or Zero we have a control sequence
+        # either adding holidays or carryover
+        # so day has not to be checked for validity
+        if not day:
+            # adjust day to zero for proper entry
+            day = 0
 
+            # add holidays or illness
+            if tag == 'h' or tag == 'i':
+                # we have to increase both since values are
+                # calculated at __init__()
+                # holidays_left_begin is purely cosmetic
+                self.holidays_left_begin += duration 
+                self.holidays_left += duration 
+                # calculate seconds for entry 
+                duration = duration * 86400
 
+            # add carryover
+            elif tag == 'c':
+                # as with h above we have to increase both
+                self.working_hours_account_begin += duration
+                self.working_hours_account += duration
+
+            else:
+                raise Exception('Tag ' + tag + ' is not defined for day == 0')
+
+        else:
+            # validate date
+            try:
+                datetime.date(self.year, self.month, day)
+            except ValueError as e:
+                raise InvalidDateException('%s' % str(e))
+            
+        
         self.protocol.append({
                             'tag':tag, 
                             'day':day, 
@@ -130,10 +157,11 @@ class Month:
                             'description':description
                             })
 
+        # add to account if neither carryover nor holiday
+        self.working_hours_account += (duration if day else 0)
 
-        self.working_hours_account += duration
-
-        if tag == 'h':
+        # decrement holidays if taken
+        if tag == 'h' and day:
             self.holidays_left -= 1
 
         return self

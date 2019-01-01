@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Developer’s Manual &#8212; tick 0.2beta documentation</title>
+    <title>Developer’s Manual &#8212; tick 0.3alpha documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -62,7 +62,7 @@
 <p>It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.</p>
 <div class="section" id="available-tags">
 <h4>available tags<a class="headerlink" href="#available-tags" title="Permalink to this headline">¶</a></h4>
-<p>Tags available in version 0.2beta are:</p>
+<p>Tags available in version 0.3alpha are:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="34%" />
@@ -77,22 +77,22 @@
 <tr class="row-even"><td>e</td>
 <td>Entry</td>
 </tr>
-<tr class="row-odd"><td>h</td>
-<td>Holiday</td>
+<tr class="row-odd"><td>a</td>
+<td>Entry for amamedis</td>
 </tr>
-<tr class="row-even"><td>c</td>
-<td>Overtime Compensation</td>
+<tr class="row-even"><td>h</td>
+<td>Holiday</td>
 </tr>
 <tr class="row-odd"><td>i</td>
 <td>Illness</td>
 </tr>
-<tr class="row-even"><td>o</td>
-<td>Offset</td>
+<tr class="row-even"><td>c</td>
+<td>Carryover</td>
 </tr>
 </tbody>
 </table>
-<p><cite>offset</cite> is used to add working hours to account.
-When <cite>holiday</cite> is used with duration, holidays are added.</p>
+<p><cite>carryover</cite> is used to add working hours to account.
+When <cite>holiday</cite> is used with day <cite>None</cite> or <cite>Zero</cite>, holidays are added.</p>
 <table class="docutils footnote" frame="void" id="csv-spec" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
