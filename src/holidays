@@ -27,6 +27,15 @@ ID=$4
 OUTFILE=$6
 DURATION=$((3600 * $5)) 
 
+if [[ $id == h ]]; then 
+	COMMENT=Urlaub
+elif [[ $id == i ]]; then
+	COMMENT=Krankheit
+else
+	echo id $ID is unknown
+	exit -1
+fi
+
 # we expect date to be in a certain format
 for input in $1 $2; do
 	[[ $input =~ ^[[:digit:]]{8}$ ]] || {
@@ -235,7 +244,7 @@ while [ $current_unix -lt $end_unix ]; do
 	}
 
 
-	echo $ID,$(date -d $current_date +%Y,%m,%d),$DURATION,,,\"\" | tee -a $OUTFILE
+	echo $ID,$(date -d $current_date +%Y,%m,%d),$DURATION,,,\"$COMMENT\" | tee -a $OUTFILE
 
 done
 

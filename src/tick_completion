@@ -13,6 +13,12 @@ _tick() {
 	[[ $prev == completion ]] && {
 		COMPREPLY="remove"
 		return
+}
+
+	# if previous is date it’s illness or holiday
+	[[ $prev =~ ^[0-9]{1,4}/[0-9]{1,2}/[0-9]{1,2} ]] && {
+		COMPREPLY=($(compgen -W "holiday illness" -- $cur))
+		return
 	}
 
 	# if previous is an option or command there is nothing left 

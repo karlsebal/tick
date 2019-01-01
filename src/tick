@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.2.1a"
+VERSION="0.2.2a"
 
 shopt -s extglob
 set -e
@@ -93,8 +93,8 @@ help() {
 		<HH[:MM]>                       duration
 		<HH:MM>-<HH:MM>                 from-to	
 
-		<[CC]YY/MM/DD>                  holiday
-		<[CC]YY/MM/DD>-<[CC]YY/MM/DD>   holidays
+		<[CC]YY/MM/DD> <h[oliday]/i[llness]>	holiday/illness
+		<[CC]YY/MM/DD>-<[CC]YY/MM/DD> <h/i>		holidays/illness
         
         Note: XX/YY/ZZZZ will lead to funny results
 
@@ -375,7 +375,23 @@ case ${stripped[1]} in
 		entry
 		;;
 	
-	# holiday given
+	# holiday(s)/illness given
+	# both need tag
+	+([0-9])/+([0-9])/+([0-9])*(-+([0-9])/+([0-9])/+([0-9])))
+
+		if [[ ${stripped[2]} =~ ^h ]]; then
+			tag=h
+		elif [[ ${stripped[2]} == ^i ]]; then
+			tag=i
+		else
+			echo either \"holiday\" or \"illness\" must be given
+			exit -1
+		fi
+
+		# proceed testing single or multiple day(s)
+		;;&
+
+	# holiday/illness given
 	+([0-9])/+([0-9])/+([0-9]))
         
 		# remove slashes
@@ -390,7 +406,7 @@ case ${stripped[1]} in
 			exit -1
         fi
 
-		$HOLIDAYS $day $day $STATE h $WORKDAY_HOURS $OUTFILE
+		$HOLIDAYS $day $day $STATE $tag $WORKDAY_HOURS $OUTFILE
 		;;
 		
 	# holidays given
@@ -419,7 +435,7 @@ case ${stripped[1]} in
 			exit -1
         fi
 
-		$HOLIDAYS $from $to $STATE h $WORKDAY_HOURS $OUTFILE
+		$HOLIDAYS $from $to $STATE $tag $WORKDAY_HOURS $OUTFILE
 		;;
 
 	parse)
