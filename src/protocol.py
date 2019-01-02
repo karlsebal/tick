@@ -121,8 +121,8 @@ class Month:
             # adjust day to zero for proper entry
             day = 0
 
-            # add holidays or illness
-            if tag == 'h' or tag == 'i':
+            # add holidays
+            if tag == 'h':
                 # we have to increase both since values are
                 # calculated at __init__()
                 # holidays_left_begin is purely cosmetic
