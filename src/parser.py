@@ -12,6 +12,8 @@ import sys
 import csv
 from protocol import Month
 
+import xlsxwriter
+
 
 def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
     """
@@ -43,7 +45,6 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
         sorted_protocol[year][month].append(entry)
 
     # now fill that into a dict with Months as leafs 
-
     sorted_years = {}
     former = None
 
@@ -53,26 +54,31 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
                 sorted_years[year] = {}
 
             if not month in sorted_years[year]:
-                sorted_years[year][month] = former.get_next(month=month) if former else Month(month=int(month))
+                sorted_years[year][month] = former.get_next(month=month, year=year) if former else Month(month=int(month), year=int(year))
 
             sorted_years[year][month].append_protocol(sorted_protocol[year][month])
             former = sorted_years[year][month]
-    
+
     return sorted_years
             
 
 if __name__ == '__main__':
 
-    if len(sys.argv) != 2:
-        print('usage: ' + sys.argv[0] + ' <protocol.csv>')
+    if len(sys.argv) < 2:
+        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<protocol.xlsx>]')
         exit(-1)
 
     with open(sys.argv[1]) as file:
         reader = csv.reader(file)
         year = parse_csv_protocol(reader)
 
-    for y in year:
-        for m in year[y]:
-            print(year[y][m].pretty())
+    xlsx_outfile = sys.argv[2] if len(sys.argv) >= 3 else 'protocol.xlsx'
+
+    with xlsxwriter.Workbook(xlsx_outfile) as workbook:
+
+        for y in year:
+            for m in year[y]:
+                print(year[y][m].pretty())
+                year[y][m].get_worksheet(workbook)
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

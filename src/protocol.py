@@ -6,6 +6,7 @@ import pdb
 from typing import Union
 import time
 import datetime
+import xlsxwriter
 
 class InvalidDateException(Exception):
     pass
@@ -254,6 +255,82 @@ class Month:
             ) + 
             '\n' + 60 * '~'
         )
+
+    def get_worksheet(self, workbook:xlsxwriter.Workbook, name:str=None) -> xlsxwriter.Workbook:
+        """add protocol as worksheet to xlsx workbook"""
+
+        # formatting
+        bold = workbook.add_format({'bold':True})
+
+        # worksheet’s name
+        if not name:
+            name = 'Arbeitsprotokoll %d.%d' % (self.month, self.year)
+
+        # get sheet, set column widths, add header
+        sheet = workbook.add_worksheet(name)
+        sheet.set_column(4, 20)
+        sheet.write_row(0, 0, ('Datum', 'Von', 'Bis', 'Dauer', 'Tätigkeit'), bold)
+
+        # row index 
+        row_idx = 1
+
+        for row in self.protocol:
+            # some calc
+            if row['from_unixtime']:
+                date = time.localtime(row['from_unixtime'])
+                from_date = '%02d:%02d' % (date.tm_hour, date.tm_min)
+            else:
+                from_date = None
+
+            if row['to_unixtime']:
+                date = time.localtime(row['to_unixtime'])
+                to_date = '%02d:%02d' % (date.tm_hour, date.tm_min)
+            else:
+                to_date = None
+
+            if not row['day']:
+                day = None
+            else:
+                day = '%2d.%d' % (row['day'], self.month)
+
+            # add row
+            sheet.write_row(row_idx, 0, [
+                day,
+                from_date,
+                to_date,
+                row['duration'] / 3600,
+                row['description']
+                ])
+            
+            row_idx += 1
+
+        # add footer
+        row_idx += 1
+        sheet.write(row_idx, 0,
+            'Gesamt:', bold)
+        sheet.write_comment(row_idx, 0,
+            'Diesen Monat geleistete Arbeitsstunden')
+        sheet.write(row_idx, 3,
+            (self.working_hours / 3600))
+
+        row_idx += 1
+        sheet.write(row_idx, 0,
+            'Konto:', bold)
+        sheet.write_comment(row_idx, 0,
+            'Arbeitsstundenkonto bezüglich Monatsende:')
+        sheet.write(row_idx, 3,
+            (self.working_hours_balance / 3600))
+
+        row_idx += 1
+        sheet.write(row_idx, 0,
+            'Urlaub:', bold)
+        sheet.write_comment(row_idx, 0,
+            'Verbleibende Urlaubstage')
+        sheet.write(row_idx, 3,
+            self.holidays_left)
+
+
+        return workbook
 
 
     def __str__(self):
