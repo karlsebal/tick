@@ -36,8 +36,11 @@ class Month:
     working_hours_balance = property(
             lambda self: self.working_hours_account - self.monthly_target * 3600)
 
-    working_hours = property(
-            lambda self: self.working_hours_account - self.working_hours_account_begin)
+    working_hours_account = property(
+            lambda self: self.working_hours + self.working_hours_account_begin)
+
+    holidays_left = property(
+            lambda self: self.holidays_left_begin - self.holidays_spent)
 
 
     def __init__(self, year:int=0, month:int=0, 
@@ -46,10 +49,10 @@ class Month:
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
-        self.holidays_left = self.holidays_left_begin
+        self.holidays_spent = 0
         self.working_hours_account_begin = working_hours_account
+        self.working_hours = 0
         self.hours_worth_working_day = hours_worth_working_day
-        self.working_hours_account = working_hours_account 
 
         t = time.localtime()
 
@@ -82,7 +85,7 @@ class Month:
         return Month(year if year else self.year if self.month < 12 else self.year + 1, 
                     month if month else self.month + 1 if self.month < 12 else 1,
                     self.holidays_left, 
-                    self.working_hours_account - self.monthly_target * 3600, 
+                    self.working_hours_balance, 
                     self.hours_worth_working_day)
 
 
@@ -123,19 +126,14 @@ class Month:
 
             # add holidays
             if tag == 'h':
-                # we have to increase both since values are
-                # calculated at __init__()
-                # holidays_left_begin is purely cosmetic
                 self.holidays_left_begin += duration 
-                self.holidays_left += duration 
-                # calculate seconds for entry 
-                duration = duration * 86400
+                # calculate seconds for entry in protocol
+                # duration is in days
+                duration = duration * self.hours_worth_working_day * 3600 
 
             # add carryover
             elif tag == 'c':
-                # as with h above we have to increase both
                 self.working_hours_account_begin += duration
-                self.working_hours_account += duration
 
             else:
                 raise Exception('Tag ' + tag + ' is not defined for day == 0')
@@ -158,11 +156,11 @@ class Month:
                             })
 
         # add to account if neither carryover nor holiday
-        self.working_hours_account += (duration if day else 0)
+        self.working_hours += (duration if day else 0)
 
-        # decrement holidays if taken
+        # increment holidays if spent
         if tag == 'h' and day:
-            self.holidays_left -= 1
+            self.holidays_spent += 1
 
         return self
 

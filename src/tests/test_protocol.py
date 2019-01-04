@@ -64,9 +64,9 @@ class TestProtocol(unittest.TestCase):
                     ['e', 13, None, epoc , epoc + 3 * hour, 'testtätigkeit'], # fromto given
                     ['e', 14, 3600, 100 , 3700, 'testtätigkeit'], # both given
                     ['e', 15, 100 * hour, 0, 0, 'long run'],
-                    ['h', 16],
-                    ['h', 17],
-                    ['i', 18]
+                    ['h', 0, 2], # add holidays
+                    ['h', 16, None, None, None, 'Urlaub'], # spend holiday
+                    ['i', 17] # illness
         ]
     
         month = Month(0, 0, 10, 0, 4)
