@@ -268,7 +268,7 @@ class Month:
 
         # get sheet, set column widths, add header
         sheet = workbook.add_worksheet(name)
-        sheet.set_column(4, 20)
+        sheet.set_column('E:E', 80)
         sheet.write_row(0, 0, ('Datum', 'Von', 'Bis', 'Dauer', 'Tätigkeit'), bold)
 
         # row index 
