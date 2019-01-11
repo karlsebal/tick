@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# calc weekends for given year
+
+[ ${#1} -eq 0 ] && {
+	echo need year
+	exit 1
+}
+
+date -d $1/2/29 2>/dev/null >&2
+
+[ $? -eq 0 ] && {
+	days=366
+	echo $1 is leap-year
+} || {
+	days=365
+	echo $1 is no leap-year
+}
+
+count=0
+
+date=$(date -d "$1/1/1 - 1 day" +%F)
+
+echo 1.1.$1 is $(date -d "$1/1/1" +%A)
+
+for i in $(seq $days); do
+
+	[ $(date -d "$date + $i days" +%u) -ge 6 ] && {
+		count=$((count+1))
+	}
+
+done
+
+echo 31.12.$1 is $(date -d "$1/12/31" +%A)
+
+echo $1 has $count weekend days
+echo
