@@ -2,7 +2,6 @@
 This module provides the Month and Year classes
 """
 
-import pdb
 from typing import Union
 import time
 import datetime
@@ -266,6 +265,10 @@ class Month:
 
         # formatting
         bold = workbook.add_format({'bold':True})
+        date_format = workbook.add_format({'num_format':'dd\.m\.yy'})
+        time_format = workbook.add_format({'num_format':'hh:mm'})
+        duration_format = workbook.add_format({'num_format':'?.0?\h'})
+        holiday_format = workbook.add_format({'num_format':'0\d'})
 
         # worksheet’s name
         if not name:
@@ -273,6 +276,7 @@ class Month:
 
         # get sheet, set column widths, add header
         sheet = workbook.add_worksheet(name)
+        sheet.set_column('D:D', 8)
         sheet.set_column('E:E', 80)
         sheet.write_row(0, 0, ('Datum', 'Von', 'Bis', 'Dauer', 'Tätigkeit'), bold)
 
@@ -282,57 +286,63 @@ class Month:
         for row in self.protocol:
             # some calc
             if row['from_unixtime']:
-                date = time.localtime(row['from_unixtime'])
-                from_date = '%02d:%02d' % (date.tm_hour, date.tm_min)
+                from_date = datetime.datetime.fromtimestamp(row['from_unixtime'])
             else:
                 from_date = None
 
             if row['to_unixtime']:
-                date = time.localtime(row['to_unixtime'])
-                to_date = '%02d:%02d' % (date.tm_hour, date.tm_min)
+                to_date = datetime.datetime.fromtimestamp(row['to_unixtime'])
             else:
                 to_date = None
 
             if not row['day']:
                 day = None
             else:
-                day = '%2d.%d' % (row['day'], self.month)
+                day = datetime.date(self.year, self.month, row['day'])
+
+            duration = row['duration'] / 3600
 
             # add row
-            sheet.write_row(row_idx, 0, [
-                day,
-                from_date,
-                to_date,
-                row['duration'] / 3600,
-                row['description']
-                ])
-            
+            if day:
+                sheet.write_datetime(row_idx, 0, day, date_format)
+
+            if from_date:
+                sheet.write_datetime(row_idx, 1, from_date, time_format)
+
+            if to_date:
+                sheet.write_datetime(row_idx, 2, to_date, time_format)
+
+            sheet.write_number(row_idx, 3, duration, duration_format)
+
+            sheet.write_string(row_idx, 4, row['description'])
+
             row_idx += 1
 
-        # add footer
+
+        # add foot rows
         row_idx += 1
         sheet.write(row_idx, 0,
             'Gesamt:', bold)
         sheet.write_comment(row_idx, 0,
             'Diesen Monat geleistete Arbeitsstunden')
-        sheet.write(row_idx, 3,
-            (self.working_hours / 3600))
+        sheet.write_number(row_idx, 3,
+            (self.working_hours / 3600), duration_format)
 
         row_idx += 1
         sheet.write(row_idx, 0,
             'Konto:', bold)
         sheet.write_comment(row_idx, 0,
             'Arbeitsstundenkonto bezüglich Monatsende:')
-        sheet.write(row_idx, 3,
-            (self.working_hours_balance / 3600))
+        sheet.write_number(row_idx, 3,
+            (self.working_hours_balance / 3600), duration_format)
 
         row_idx += 1
         sheet.write(row_idx, 0,
             'Urlaub:', bold)
         sheet.write_comment(row_idx, 0,
             'Verbleibende Urlaubstage')
-        sheet.write(row_idx, 3,
-            self.holidays_left)
+        sheet.write_number(row_idx, 3,
+            self.holidays_left, holiday_format)
 
 
         return workbook

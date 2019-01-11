@@ -26,11 +26,12 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
 
     :param protocol: protocol to parse
     :param state: state based on which workdays are calculated by protocol
-    :return: a dict containing years with months as protocol.Month
+    :return: a dict containing years containing instances of protocol.Month
 
     """
 
     # first sort month and year, leafs are protocol lists
+    # as they are found in the csv
     sorted_protocol = {}
 
     for entry in protocol:
@@ -52,7 +53,8 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
         sorted_protocol[year][month].append(entry)
 
 
-    # now fill that into a dict with Months as leafs 
+    # now fill that into a dict with instances of
+    # protocol.Month as leafs 
     sorted_years = {}
     former = None
 
@@ -86,8 +88,9 @@ if __name__ == '__main__':
 
     with xlsxwriter.Workbook(xlsx_outfile) as workbook:
 
-        for y in year:
-            for m in year[y]:
+        # reversed output (Kaufmännische Heftung)
+        for y in reversed(sorted(year)):
+            for m in reversed(sorted(year[y])):
                 print(year[y][m].pretty())
                 year[y][m].get_worksheet(workbook)
 
