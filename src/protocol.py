@@ -7,6 +7,8 @@ from typing import Union
 import time
 import datetime
 import xlsxwriter
+from holidays import Holidays
+
 
 class InvalidDateException(Exception):
     pass
@@ -25,14 +27,13 @@ class Month:
     :param yearmonth: integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. 
     :param hours_worth_working_day: number of hours a working day is worth
         If only one digit is given it will be padded with a leading 0.
+    :param state: state on which based working days are calculated. 
+        If given None, all holidays will count which must lead to wrong results.
     :raises InvalidDateException: raised when the Date given is nonsense.
     """
 
-    AVERAGE_WEEKS_PER_MONTH = 4.33
-    
-
     monthly_target = property(
-            lambda self: 5 * self.hours_worth_working_day * Month.AVERAGE_WEEKS_PER_MONTH)
+            lambda self: self.hours_worth_working_day * self.average_working_days_per_month)
 
     working_hours_balance = property(
             lambda self: self.working_hours_account - self.monthly_target * 3600)
@@ -46,7 +47,7 @@ class Month:
 
     def __init__(self, year:int=0, month:int=0, 
                     holidays_left:int=0, working_hours_account:int=0, 
-                    hours_worth_working_day:int=4):
+                    hours_worth_working_day:int=4, state:str=None):
 
         self.protocol = []
         self.holidays_left_begin = holidays_left
@@ -54,6 +55,7 @@ class Month:
         self.working_hours_account_begin = working_hours_account
         self.working_hours = 0
         self.hours_worth_working_day = hours_worth_working_day
+        self.state = state
 
         t = time.localtime()
 
@@ -69,6 +71,8 @@ class Month:
 
         if self.month < 1 or self.month > 12:
             raise InvalidDateException('%d is not a valid month' % self.month)
+
+        self.average_working_days_per_month = Holidays(self.year, self.state).get_working_days() / 12
 
 
     def get_next(self, year=None, month=None) -> 'Month':
@@ -87,7 +91,8 @@ class Month:
                     month if month else self.month + 1 if self.month < 12 else 1,
                     self.holidays_left, 
                     self.working_hours_balance, 
-                    self.hours_worth_working_day)
+                    self.hours_worth_working_day,
+                    self.state)
 
 
     def append(self, tag:str, day:int, duration:int=0, from_unixtime:int=0, to_unixtime:int=0, description:str=None) -> 'Month':

@@ -15,11 +15,12 @@ from protocol import Month
 import xlsxwriter
 
 
-def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
+def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
     """
     parse a list of `csv` protocol entries into year. return year.
 
     :param protocol: protocol to parse
+    :param state: state based on which workdays are calculated by protocol
 
     """
 
@@ -54,7 +55,7 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
                 sorted_years[year] = {}
 
             if not month in sorted_years[year]:
-                sorted_years[year][month] = former.get_next(month=month, year=year) if former else Month(month=int(month), year=int(year))
+                sorted_years[year][month] = former.get_next(month=month, year=year) if former else Month(month=int(month), year=int(year), state=state)
 
             sorted_years[year][month].append_protocol(sorted_protocol[year][month])
             former = sorted_years[year][month]
@@ -65,12 +66,14 @@ def parse_csv_protocol(protocol: Union[list, tuple]) -> dict:
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<protocol.xlsx>]')
+        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<protocol.xlsx>] [<state>]')
         exit(-1)
+
+    state = sys.argv[3] if len(sys.argv) >= 4 else None
 
     with open(sys.argv[1]) as file:
         reader = csv.reader(file)
-        year = parse_csv_protocol(reader)
+        year = parse_csv_protocol(reader, state)
 
     xlsx_outfile = sys.argv[2] if len(sys.argv) >= 3 else 'protocol.xlsx'
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="0.3a"
+. version.py
 
 shopt -s extglob
 set -e
@@ -499,7 +499,7 @@ case ${stripped[1]} in
 		;;
 
 	parse)
-		$PARSER $OUTFILE $XLSX_OUT
+		$PARSER $OUTFILE $XLSX_OUT $STATE
 		;;
 
 	report) 
