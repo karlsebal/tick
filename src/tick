@@ -563,4 +563,4 @@ case ${stripped[1]} in
 		;;
 esac
 
-# vim: ai sw=4 sts=4 ts=4 noexpandtab
+# vim: set ai sw=4 sts=4 ts=4 noexpandtab ft=sh:
