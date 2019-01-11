@@ -19,8 +19,14 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
     """
     parse a list of `csv` protocol entries into year. return year.
 
+    The dict returned will contain a chain of Months in ascending order
+    regardless of missing months. That means the working hour account is
+    assigned to the next month found in protocol no matter how many months
+    are missing in between.
+
     :param protocol: protocol to parse
     :param state: state based on which workdays are calculated by protocol
+    :return: a dict containing years with months as protocol.Month
 
     """
 
@@ -45,12 +51,13 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
 
         sorted_protocol[year][month].append(entry)
 
+
     # now fill that into a dict with Months as leafs 
     sorted_years = {}
     former = None
 
-    for year in sorted_protocol:
-        for month in sorted_protocol[year]:
+    for year in sorted(sorted_protocol):
+        for month in sorted(sorted_protocol[year]):
             if not year in sorted_years:
                 sorted_years[year] = {}
 

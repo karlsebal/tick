@@ -1,6 +1,5 @@
 #!/bin/bash
 
-. version.py
 
 shopt -s extglob
 set -e
@@ -32,6 +31,8 @@ TICKDIR=$HOME/.tick
 	echo '$STATE not configured'
 	exit -1
 }
+
+. $BINDIR/version.py
 
 OUTFILE="$OUTDIR/protocol.csv"
 XLSX_OUT="$OUTDIR/protocol.xlsx"
