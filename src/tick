@@ -35,7 +35,6 @@ TICKDIR=$HOME/.tick
 . $BINDIR/version.py
 
 OUTFILE="$OUTDIR/protocol.csv"
-XLSX_OUT="$OUTDIR/protocol.xlsx"
 PARSER="$BINDIR/parser.py"
 HOLIDAYS="$BINDIR/vacation"
 
@@ -500,7 +499,7 @@ case ${stripped[1]} in
 		;;
 
 	parse)
-		$PARSER $OUTFILE $XLSX_OUT $STATE
+		$PARSER $OUTFILE $STATE
 		;;
 
 	report) 

@@ -13,6 +13,7 @@ import csv
 from protocol import Month
 
 import xlsxwriter
+from pathlib import Path
 
 
 def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
@@ -75,23 +76,45 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<protocol.xlsx>] [<state>]')
+        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<state>]')
         exit(-1)
 
-    state = sys.argv[3] if len(sys.argv) >= 4 else None
+    state = sys.argv[2] if len(sys.argv) == 3 else None
 
-    with open(sys.argv[1]) as file:
-        reader = csv.reader(file)
+    path = Path(sys.argv[1]).expanduser()
+
+    csv_infile = str(path)
+    xlsx_outfile = str(path.with_suffix('.xlsx'))
+    txt_outfile = path.with_suffix('.txt')
+
+
+    # parse the csv
+    with open(csv_infile) as infile:
+        reader = csv.reader(infile)
         year = parse_csv_protocol(reader, state)
 
-    xlsx_outfile = sys.argv[2] if len(sys.argv) >= 3 else 'protocol.xlsx'
+    # write the parsed protocol to excel and txt
+    with xlsxwriter.Workbook(xlsx_outfile) as workbook, \
+            txt_outfile.open('w') as txtfile:
 
-    with xlsxwriter.Workbook(xlsx_outfile) as workbook:
 
         # reversed output (Kaufmännische Heftung)
         for y in reversed(sorted(year)):
             for m in reversed(sorted(year[y])):
-                print(year[y][m].pretty())
+                txtfile.writelines((year[y][m].pretty(), '\n'))
                 year[y][m].get_worksheet(workbook)
+
+    # some feedback
+    print('\nWorkbook written to %s'
+            '\nTextfile written to %s'
+            '\nFollowing an output of the month on top.'
+            '\n' % (xlsx_outfile, str(txt_outfile))
+        )
+
+    # finally give a printout of the month on top
+    y = sorted(year)[-1]
+    m = sorted(year[y])[-1]
+    print(year[y][m].pretty())
+
 
 # vim: ai sts=4 ts=4 sw=4 expandtab
