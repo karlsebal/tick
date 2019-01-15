@@ -7,6 +7,7 @@ import time
 import datetime
 import xlsxwriter
 from holidays import Holidays
+from version import VERSION
 
 
 class InvalidDateException(Exception):
@@ -274,11 +275,21 @@ class Month:
         if not name:
             name = 'Arbeitsprotokoll %d.%d' % (self.month, self.year)
 
-        # get sheet, set column widths, add header
+        # get sheet, set column widths, add header, footer and headrow 
         sheet = workbook.add_worksheet(name)
         sheet.set_column('D:D', 8)
-        sheet.set_column('E:E', 80)
+        sheet.set_column('E:E', 63)
+        sheet.set_landscape()
+        sheet.set_header('&A')
+
+        now = datetime.datetime.now()
+        now_string = '%d.%d.%d %d:%d' % (now.day, now.month, now.year,
+                                        now.hour, now.minute)
+        sheet.set_footer('&LErzeugt am %s &R Time Tracker V%s' % (now_string,
+                                                                VERSION))
+
         sheet.write_row(0, 0, ('Datum', 'Von', 'Bis', 'Dauer', 'Tätigkeit'), bold)
+        
 
         # row index 
         row_idx = 1
