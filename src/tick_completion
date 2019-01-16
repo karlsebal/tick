@@ -41,8 +41,8 @@ _tick() {
 		-*)
 			COMPREPLY=($(compgen -W "$longopts $shortopts" -- $cur))
 			;;
-		*)
-			COMPREPLY=($(compgen -W "$longopts $shortopts $commands" -- $cur))
+		""|[^-]*)
+			COMPREPLY=($(compgen -W "$commands" -- $cur))
 			;;
 	esac
 }
