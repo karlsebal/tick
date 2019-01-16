@@ -282,10 +282,11 @@ class Month:
         sheet.set_landscape()
         sheet.set_header('&A')
 
+        # footer shows creation time, page x/<total> and version
         now = datetime.datetime.now()
         now_string = '%d.%d.%d %d:%d' % (now.day, now.month, now.year,
                                         now.hour, now.minute)
-        sheet.set_footer('&LErzeugt am %s &R Time Tracker V%s' % (now_string,
+        sheet.set_footer('&LErzeugt am %s &C&P/&N &R Time Tracker V%s' % (now_string,
                                                                 VERSION))
 
         sheet.write_row(0, 0, ('Datum', 'Von', 'Bis', 'Dauer', 'Tätigkeit'), bold)
