@@ -3,6 +3,8 @@
 parser for :program:`tick`
 """
 
+import argparse
+
 import logging
 import pdb
 
@@ -16,7 +18,7 @@ import xlsxwriter
 from pathlib import Path
 
 
-def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
+def parse_csv_protocol(protocol: Union[list, tuple], state: str) -> dict:
     """
     parse a list of `csv` protocol entries into year. return year.
 
@@ -53,7 +55,6 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
 
         sorted_protocol[year][month].append(entry)
 
-
     # now fill that into a dict with instances of
     # protocol.Month as leafs 
     sorted_years = {}
@@ -65,28 +66,46 @@ def parse_csv_protocol(protocol: Union[list, tuple], state:str) -> dict:
                 sorted_years[year] = {}
 
             if not month in sorted_years[year]:
-                sorted_years[year][month] = former.get_next(month=month, year=year) if former else Month(month=int(month), year=int(year), state=state)
+                sorted_years[year][month] = former.get_next(month=month, year=year) if former else Month(
+                    month=int(month), year=int(year), state=state)
 
             sorted_years[year][month].append_protocol(sorted_protocol[year][month])
             former = sorted_years[year][month]
 
     return sorted_years
-            
+
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print('usage: ' + sys.argv[0] + ' <protocol.csv> [<state>]')
+    # command line parsing
+    parser = argparse.ArgumentParser(description='parse a Tick protocol')
+
+    # global options
+    parser.add_argument('--csv-file', '-f', metavar='<csv file>', required=False, help='csv file to parse',
+                        default='protocol.csv')
+
+    # commands
+    subparser = parser.add_subparsers(title='Commands')
+
+    parse_protocol = subparser.add_parser('parse', help='parse protocol')
+    parse_protocol.add_argument('state', help='state to parse for', nargs='?')
+
+    parse_invoice = subparser.add_parser('invoice', help='create invoice')
+    parse_invoice.add_argument('-a', '--amamedis', help='invoice for amamedis', required=False, action='store_true')
+
+    parsed = parser.parse_args()
+
+    # helpful message if no arguments given
+    if len(sys.argv) == 1:
+        parser.print_usage()
         exit(-1)
 
-    state = sys.argv[2] if len(sys.argv) == 3 else None
-
-    path = Path(sys.argv[1]).expanduser()
+    state = parsed.state
+    path = Path(parsed.csv_file).expanduser()
 
     csv_infile = str(path)
     xlsx_outfile = str(path.with_suffix('.xlsx'))
     txt_outfile = path.with_suffix('.txt')
-
 
     # parse the csv
     with open(csv_infile) as infile:
@@ -97,7 +116,6 @@ if __name__ == '__main__':
     with xlsxwriter.Workbook(xlsx_outfile) as workbook, \
             txt_outfile.open('w') as txtfile:
 
-
         # reversed output (Kaufmännische Heftung)
         for y in reversed(sorted(year)):
             for m in reversed(sorted(year[y])):
@@ -106,15 +124,14 @@ if __name__ == '__main__':
 
     # some feedback
     print('\nWorkbook written to %s'
-            '\nTextfile written to %s'
-            '\nFollowing an output of the month on top.'
-            '\n' % (xlsx_outfile, str(txt_outfile))
-        )
+          '\nTextfile written to %s'
+          '\nFollowing an output of the month on top.'
+          '\n' % (xlsx_outfile, str(txt_outfile))
+          )
 
     # finally give a printout of the month on top
     y = sorted(year)[-1]
     m = sorted(year[y])[-1]
     print(year[y][m].pretty())
-
 
 # vim: ai sts=4 ts=4 sw=4 expandtab

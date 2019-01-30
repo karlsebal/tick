@@ -499,7 +499,7 @@ case ${stripped[1]} in
 		;;
 
 	parse)
-		$PARSER $OUTFILE $STATE
+		$PARSER --csv-file $OUTFILE parse $STATE
 		;;
 
 	report) 
