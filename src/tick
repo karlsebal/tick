@@ -100,7 +100,7 @@ help() {
 		add <c[arryover]> <HH[:MM]>     add carryover
 
 		parse                           parse protocol
-		state
+		status                          show month on top
 		report
 		sync                            sync protocol to backup location
 
@@ -224,7 +224,7 @@ for arg in "$@"; do
 						;;
 
 					V|--version)
-						echo $VERSION
+						echo ${0##*/} $VERSION
 						exit 0
 						;;
 
@@ -511,10 +511,9 @@ case ${stripped[1]} in
 		echo not implemented yet
 		exit 1
 		;;
-	
-	state)
-		echo not implemented yet
-		exit 1
+
+	status)
+		$PARSER --csv-file $OUTFILE status $STATE
 		;;
 
 	undo)

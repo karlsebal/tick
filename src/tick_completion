@@ -3,7 +3,7 @@ _tick() {
 
 	shortopts="-h -d -m -y -D -Y -a -V"
 	longopts="--day --month --year --amamedis --version"
-	commands="add parse state report sync undo redo completion"
+	commands="add parse status report sync undo redo completion"
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}

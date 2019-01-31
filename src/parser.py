@@ -5,10 +5,9 @@ parser for :program:`tick`
 
 import argparse
 
-import logging
-import pdb
-
 from typing import Union
+
+from version import VERSION
 
 import sys
 import csv
@@ -77,21 +76,26 @@ def parse_csv_protocol(protocol: Union[list, tuple], state: str) -> dict:
 
 if __name__ == '__main__':
 
-    # command line parsing
+    # command line parsing is not very sophisticated since the parser
+    # is meant to be invoked by the controller
     parser = argparse.ArgumentParser(description='parse a Tick protocol')
 
     # global options
     parser.add_argument('--csv-file', '-f', metavar='<csv file>', required=False, help='csv file to parse',
                         default='protocol.csv')
+    parser.add_argument('--version', '-V', action='version', version=f'%(prog)s {VERSION}')
 
     # commands
-    subparser = parser.add_subparsers(title='Commands')
+    subparser = parser.add_subparsers(title='Commands', dest='command')
 
     parse_protocol = subparser.add_parser('parse', help='parse protocol')
     parse_protocol.add_argument('state', help='state to parse for', nargs='?')
 
     parse_invoice = subparser.add_parser('invoice', help='create invoice')
-    parse_invoice.add_argument('-a', '--amamedis', help='invoice for amamedis', required=False, action='store_true')
+    parse_invoice.add_argument('tag', help='tag to create invoice for', nargs='?')
+
+    parse_invoice = subparser.add_parser('status', help='show last month')
+    parse_invoice.add_argument('state', help='state to parse protocol for', nargs='?')
 
     parsed = parser.parse_args()
 
@@ -100,7 +104,7 @@ if __name__ == '__main__':
         parser.print_usage()
         exit(-1)
 
-    state = parsed.state
+    state = parsed.state if hasattr(parsed, 'state') else None
     path = Path(parsed.csv_file).expanduser()
 
     csv_infile = str(path)
@@ -112,24 +116,31 @@ if __name__ == '__main__':
         reader = csv.reader(infile)
         year = parse_csv_protocol(reader, state)
 
-    # write the parsed protocol to excel and txt
-    with xlsxwriter.Workbook(xlsx_outfile) as workbook, \
-            txt_outfile.open('w') as txtfile:
+    if parsed.command == 'parse':
+        # write the parsed protocol to excel and txt
 
-        # reversed output (Kaufmännische Heftung)
-        for y in reversed(sorted(year)):
-            for m in reversed(sorted(year[y])):
-                txtfile.writelines((year[y][m].pretty(), '\n'))
-                year[y][m].get_worksheet(workbook)
+        with xlsxwriter.Workbook(xlsx_outfile) as workbook, \
+                txt_outfile.open('w') as txtfile:
 
-    # some feedback
-    print('\nWorkbook written to %s'
-          '\nTextfile written to %s'
-          '\nFollowing an output of the month on top.'
-          '\n' % (xlsx_outfile, str(txt_outfile))
-          )
+            # reversed output (Kaufmännische Heftung)
+            for y in reversed(sorted(year)):
+                for m in reversed(sorted(year[y])):
+                    txtfile.writelines((year[y][m].pretty(), '\n'))
+                    year[y][m].get_worksheet(workbook)
 
-    # finally give a printout of the month on top
+            # some feedback
+            print('\nWorkbook written to %s'
+                  '\nTextfile written to %s'
+                  '\nFollowing an output of the month on top.'
+                  '\n' % (xlsx_outfile, str(txt_outfile))
+                  )
+
+    elif parsed.command == 'invoice':
+        raise NotImplementedError
+
+
+# finally give a printout of the month on top
+    # which is correct action for 'status' as well.
     y = sorted(year)[-1]
     m = sorted(year[y])[-1]
     print(year[y][m].pretty())
