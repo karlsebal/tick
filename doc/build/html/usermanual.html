@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>User’s Manual &#8212; tick 0.3alpha documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developer’s Manual" href="devmanual.html" />
+    <link rel="prev" title="Time Clock" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="users-manual">
+<h1>User’s Manual<a class="headerlink" href="#users-manual" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cli">
+<h2>CLI<a class="headerlink" href="#cli" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="options">
+<h3>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h3>
+<dl class="option">
+<dt id="cmdoption-h">
+<code class="descname">-h</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--help</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>help</p>
+<dl class="option">
+<dt id="cmdoption-y">
+<code class="descname">-y</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--year</code><code class="descclassname"> &lt;year&gt;</code><a class="headerlink" href="#cmdoption-y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>set year</p>
+<dl class="option">
+<dt id="cmdoption-m">
+<code class="descname">-m</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--month</code><code class="descclassname"> &lt;month&gt;</code><a class="headerlink" href="#cmdoption-m" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>set month</p>
+<dl class="option">
+<dt id="cmdoption-d">
+<code class="descname">-d</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--day</code><code class="descclassname"> &lt;dom&gt;</code><a class="headerlink" href="#cmdoption-d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>set day of month</p>
+<dl class="option">
+<dt id="cmdoption-date">
+<code class="descname">-D</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--date</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>set date as if set via <code class="docutils literal"><span class="pre">date</span> <span class="pre">-d</span></code></p>
+<dl class="option">
+<dt id="cmdoption-yesterday">
+<code class="descname">-Y</code><code class="descclassname"></code><code class="descclassname">, </code><code class="descname">--yesterday</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-yesterday" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>set date to yesterday</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The date given via <a class="reference internal" href="#cmdoption-date"><code class="xref std std-option docutils literal"><span class="pre">-D</span></code></a> is parsed directly into <strong class="program">date -d</strong>.</p>
+</div>
+</div>
+<div class="section" id="commands">
+<h3>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>&lt;HH[:MM]|:MM&gt; &lt;description&gt;</dt>
+<dd>appends a work &lt;description&gt; with the duration of &lt;number&gt;. Duration is given either in hours or
+hours and minutes separated by colon or minutes preceded by a colon.</dd>
+<dt>&lt;HH:MM&gt;-&lt;HH:MM&gt; &lt;description&gt;</dt>
+<dd>appends a work &lt;description&gt; for the period given.</dd>
+<dt>parse</dt>
+<dd><p class="first">parse the protocol related to the month set</p>
+<p class="last">The file named <code class="file docutils literal"><span class="pre">Arbeitszeiten_&lt;YY-MM&gt;.xlsx</span></code> will be placed in the working directory</p>
+</dd>
+<dt>report</dt>
+<dd>parse the protocol related to the month set and send the <cite>xlsx</cite> file to a configured mail address</dd>
+<dt>undo</dt>
+<dd>remove the last entry in the month’s protocol to which the date is set</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>As with version 0.3alpha all configuration is hard coded. Changes are to be made in the shell script. See <a class="reference internal" href="devmanual.html"><span class="doc">Developer’s Manual</span></a> for details.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User’s Manual</a><ul>
+<li><a class="reference internal" href="#cli">CLI</a><ul>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#commands">Commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Time Clock</a></li>
+      <li>Next: <a href="devmanual.html" title="next chapter">Developer’s Manual</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usermanual.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, k.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/usermanual.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
