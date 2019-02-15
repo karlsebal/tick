@@ -1,0 +1,380 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>protocol &#8212; tick 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for protocol</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides the Month and Year classes</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pdb</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">class</span> <span class="nc">InvalidDateException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">ConfusingDataException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="Month"><a class="viewcode-back" href="../devmanual.html#protocol.Month">[docs]</a><span class="k">class</span> <span class="nc">Month</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides the work time protocol for one month</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    :param holidays_left: number of holidays left, 0 if omitted</span>
+<span class="sd">    :param working_hours_account: credit of working hours in *seconds*, 0 if omitted</span>
+<span class="sd">    :param yearmonth: integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing. </span>
+<span class="sd">    :param hours_worth_working_day: number of hours a working day is worth</span>
+<span class="sd">        If only one digit is given it will be padded with a leading 0.</span>
+<span class="sd">    :raises InvalidDateException: raised when the Date given is nonsense.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">AVERAGE_WEEKS_PER_MONTH</span> <span class="o">=</span> <span class="mf">4.33</span>
+    
+
+    <span class="n">monthly_target</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="mi">5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">hours_worth_working_day</span> <span class="o">*</span> <span class="n">Month</span><span class="o">.</span><span class="n">AVERAGE_WEEKS_PER_MONTH</span><span class="p">)</span>
+
+    <span class="n">working_hours_balance</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>
+
+    <span class="n">working_hours</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                    <span class="n">holidays_left</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">working_hours_account</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                    <span class="n">hours_worth_working_day</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span> <span class="o">=</span> <span class="n">holidays_left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span> <span class="o">=</span> <span class="n">working_hours_account</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hours_worth_working_day</span> <span class="o">=</span> <span class="n">hours_worth_working_day</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">=</span> <span class="n">working_hours_account</span> 
+
+        <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">month</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tm_mon</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">month</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">year</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tm_year</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> is not a valid month&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Month.get_next"><a class="viewcode-back" href="../devmanual.html#protocol.Month.get_next">[docs]</a>    <span class="k">def</span> <span class="nf">get_next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Month&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return the next Month derived from the current</span>
+
+<span class="sd">        holidays left are transferred, working hours account</span>
+<span class="sd">        is adjusted.</span>
+
+<span class="sd">        :param month: you can give a different month. If omitted next</span>
+<span class="sd">            month is assumed.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">Month</span><span class="p">(</span><span class="n">year</span> <span class="k">if</span> <span class="n">year</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> 
+                    <span class="n">month</span> <span class="k">if</span> <span class="n">month</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">,</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hours_worth_working_day</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Month.append"><a class="viewcode-back" href="../devmanual.html#protocol.Month.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">day</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">from_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">to_unixtime</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Month&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        append an entry to the protocol</span>
+
+<span class="sd">        :param tag: tag</span>
+<span class="sd">        :param duration: duration of work in seconds</span>
+<span class="sd">        :param from_unixtime: beginning of work in epoch</span>
+<span class="sd">        :param to_unixtime: ending of work in epoch</span>
+<span class="sd">        :param description: description</span>
+<span class="sd">        :raises ConfusingData: when duration and from/to do are both given and do not match</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># validate and set duration</span>
+        <span class="k">if</span> <span class="n">from_unixtime</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">to_unixtime</span> <span class="ow">or</span> <span class="n">to_unixtime</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">from_unixtime</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfusingDataException</span><span class="p">(</span><span class="s1">&#39;from and to must be given both&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">duration</span> <span class="ow">and</span> <span class="n">from_unixtime</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">duration</span> <span class="o">!=</span> <span class="p">(</span><span class="n">to_unixtime</span> <span class="o">-</span> <span class="n">from_unixtime</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfusingDataException</span><span class="p">(</span><span class="s1">&#39;duration given and calculated do not match&#39;</span><span class="p">)</span>
+
+        <span class="c1"># a whole day if no duration is given</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">duration</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">from_unixtime</span><span class="p">:</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hours_worth_working_day</span> <span class="o">*</span> <span class="mi">3600</span>
+
+        <span class="c1"># we should be safe now</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">duration</span><span class="p">:</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="n">to_unixtime</span> <span class="o">-</span> <span class="n">from_unixtime</span>
+
+        <span class="c1"># validate date</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidDateException</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                            <span class="s1">&#39;tag&#39;</span><span class="p">:</span><span class="n">tag</span><span class="p">,</span> 
+                            <span class="s1">&#39;day&#39;</span><span class="p">:</span><span class="n">day</span><span class="p">,</span> 
+                            <span class="s1">&#39;duration&#39;</span><span class="p">:</span><span class="n">duration</span><span class="p">,</span> 
+                            <span class="s1">&#39;from_unixtime&#39;</span><span class="p">:</span><span class="n">from_unixtime</span><span class="p">,</span> 
+                            <span class="s1">&#39;to_unixtime&#39;</span><span class="p">:</span><span class="n">to_unixtime</span><span class="p">,</span> 
+                            <span class="s1">&#39;description&#39;</span><span class="p">:</span><span class="n">description</span>
+                            <span class="p">})</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">+=</span> <span class="n">duration</span>
+
+        <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Month.append_protocol"><a class="viewcode-back" href="../devmanual.html#protocol.Month.append_protocol">[docs]</a>    <span class="k">def</span> <span class="nf">append_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;Month&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        add a list or tuple of entries to the protocol</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">protocol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">*</span><span class="n">entry</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Month.dump"><a class="viewcode-back" href="../devmanual.html#protocol.Month.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;return a dict with all values&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+            <span class="s1">&#39;holidays_left_begin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">,</span>
+            <span class="s1">&#39;holidays_left&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours_account_begin&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours_account&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="p">,</span>
+            <span class="s1">&#39;monthly_target&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span><span class="p">,</span>
+            <span class="s1">&#39;working_hours&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours</span><span class="p">,</span>
+            <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span>
+        <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="Month.pretty"><a class="viewcode-back" href="../devmanual.html#protocol.Month.pretty">[docs]</a>    <span class="k">def</span> <span class="nf">pretty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;return object as pretty string&quot;&quot;&quot;</span>
+
+        <span class="c1"># protocol first</span>
+
+        <span class="n">protocol</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">:</span>
+            <span class="c1"># pretty fromto</span>
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">]:</span>
+                <span class="n">from_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;from_unixtime&#39;</span><span class="p">])</span>  
+                <span class="n">from_hour</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tm_hour</span>
+                <span class="n">from_minute</span> <span class="o">=</span> <span class="n">from_time</span><span class="o">.</span><span class="n">tm_min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">from_hour</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">from_minute</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">]:</span>
+                <span class="n">to_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">])</span>  
+                <span class="n">to_hour</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tm_hour</span>
+                <span class="n">to_minute</span> <span class="o">=</span> <span class="n">to_time</span><span class="o">.</span><span class="n">tm_min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;to_unixtime&#39;</span><span class="p">])</span> 
+                <span class="n">to_hour</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">to_minute</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># add entry</span>
+            <span class="n">protocol</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">.</span><span class="si">%d</span><span class="s1"> </span><span class="si">%.2f</span><span class="s1">h (</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">): </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span>
+                <span class="n">from_hour</span><span class="p">,</span> <span class="n">from_minute</span><span class="p">,</span>
+                <span class="n">to_hour</span><span class="p">,</span> <span class="n">to_minute</span><span class="p">,</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="n">decorator</span> <span class="o">=</span> <span class="mi">25</span> <span class="o">*</span> <span class="s1">&#39;*&#39;</span>
+
+        <span class="c1"># and all together now</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%04d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">HolidaysLeftBeginMonth: </span><span class="si">%d</span><span class="s1">d&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">HolidaysLeft: </span><span class="si">%d</span><span class="s1">d&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">MonthlyTarget: </span><span class="si">%.1f</span><span class="s1">h&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WorkingHoursAccountBeginMonth: </span><span class="si">%+.1f</span><span class="s1">h (</span><span class="si">%d</span><span class="s1">s)&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WorkingHoursAccount: </span><span class="si">%.1f</span><span class="s1">h (</span><span class="si">%d</span><span class="s1">s)&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WorkingHours: </span><span class="si">%.1f</span><span class="s1">h (</span><span class="si">%d</span><span class="s1">s)&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">WorkingHoursBalance: </span><span class="si">%+.1f</span><span class="s1">h&#39;</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1"> Protocol </span><span class="si">%s</span><span class="s1">&#39;</span> 
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">decorator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">decorator</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours</span> <span class="o">/</span><span class="mi">3600</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_hours</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_balance</span> <span class="o">/</span> <span class="mi">3600</span> <span class="p">,</span>
+                <span class="n">decorator</span><span class="p">,</span> <span class="n">decorator</span><span class="p">,</span>
+                <span class="n">protocol</span>
+            <span class="p">)</span> <span class="o">+</span> 
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">*</span> <span class="s1">&#39;~&#39;</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s1">&#39;Year: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;Month: </span><span class="si">%d</span><span class="s1">, &#39;</span>
+            <span class="s1">&#39;HolidaysLeftBeginMonth: </span><span class="si">%d</span><span class="s1">d, &#39;</span>
+            <span class="s1">&#39;HolidaysLeft: </span><span class="si">%d</span><span class="s1">d, &#39;</span>
+            <span class="s1">&#39;WorkingHoursAccountBeginMonth: </span><span class="si">%d</span><span class="s1">s, &#39;</span>
+            <span class="s1">&#39;WorkingHoursAccount: </span><span class="si">%d</span><span class="s1">s, &#39;</span>
+            <span class="s1">&#39;MonthlyTarget: </span><span class="si">%.1f</span><span class="s1">h, &#39;</span>
+            <span class="s1">&#39;WorkingHours: </span><span class="si">%+.1f</span><span class="s1">h, &#39;</span>
+            <span class="s1">&#39;WorkingHoursBalance: </span><span class="si">%+.1f</span><span class="s1">h, &#39;</span>
+            <span class="s1">&#39;Protocol: </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">holidays_left</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_account</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">monthly_target</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">working_hours_balance</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Season"><a class="viewcode-back" href="../devmanual.html#protocol.Season">[docs]</a><span class="k">class</span> <span class="nc">Season</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    contains a valid chain of Months</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">working_hours_account</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">months</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Season.add_month"><a class="viewcode-back" href="../devmanual.html#protocol.Season.add_month">[docs]</a>    <span class="k">def</span> <span class="nf">add_month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span><span class="n">Month</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Season&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        append a protocol to the chain</span>
+
+<span class="sd">        :param protocol: protocol to add.</span>
+<span class="sd">        :raises ValueError: when validation fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if it is not the first one added</span>
+        <span class="c1"># validate against last in chain</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">months</span><span class="p">:</span>
+            <span class="n">former</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">months</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">former</span><span class="o">.</span><span class="n">working_hours_balance</span> <span class="o">!=</span> <span class="n">month</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;working_hours_balance from </span><span class="si">%d</span><span class="s1"> is </span><span class="si">%d</span><span class="s1"> and does not&#39;</span>
+                                <span class="s1">&#39;match working_hours_account_begin from </span><span class="si">%d</span><span class="s1"> which is </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                    <span class="n">former</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">former</span><span class="o">.</span><span class="n">working_hours_balance</span><span class="p">,</span> 
+                                    <span class="n">month</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">month</span><span class="o">.</span><span class="n">working_hours_account_begin</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">former</span><span class="o">.</span><span class="n">holidays_left</span> <span class="o">!=</span> <span class="n">month</span><span class="o">.</span><span class="n">holidays_left_begin</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;holidays_left from </span><span class="si">%r</span><span class="s1"> does not&#39;</span>
+                                <span class="s1">&#39;match holidays_left_begin from </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                                    <span class="n">former</span><span class="o">.</span><span class="n">dump</span><span class="p">(),</span> <span class="n">month</span><span class="o">.</span><span class="n">dump</span><span class="p">()))</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">months</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">month</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<span class="c1"># vim: ai sts=4 ts=4 sw=4 expandtab</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, k.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

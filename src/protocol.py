@@ -212,7 +212,7 @@ class Month:
             '\nWorkingHoursAccountBeginMonth: %+.1fh (%ds)'
             '\nWorkingHoursAccount: %.1fh (%ds)'
             '\nWorkingHours: %.1fh (%ds)'
-            '\nWorkingHoursBalance: %+.1fh'
+            '\nWorkingHoursBalance: %+.1fh (%ds)'
             '\n%s Protocol %s' 
             '\n%s' % (
                 decorator, self.year, self.month, decorator,
@@ -222,7 +222,7 @@ class Month:
                 self.working_hours_account_begin / 3600, self.working_hours_account_begin,
                 self.working_hours_account / 3600, self.working_hours_account,
                 self.working_hours /3600, self.working_hours,
-                self.working_hours_balance / 3600 ,
+                self.working_hours_balance / 3600 , self.working_hours_balance,
                 decorator, decorator,
                 protocol
             ) + 

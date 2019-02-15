@@ -1,0 +1,416 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Developer’s Manual &#8212; tick 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="User’s Manual" href="usermanual.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="developers-manual">
+<h1>Developer’s Manual<a class="headerlink" href="#developers-manual" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>There are two components doing the job:</p>
+<ul class="simple">
+<li>the shell script as controller, making entries, calling the parser and sending reports.</li>
+<li>the parser creating the <cite>xlsx</cite> files</li>
+</ul>
+</div>
+<div class="section" id="files-and-formats">
+<h2>files and formats<a class="headerlink" href="#files-and-formats" title="Permalink to this headline">¶</a></h2>
+<p>The controller files are stored in <code class="file docutils literal"><span class="pre">~/.tick/</span></code> where a <code class="file docutils literal"><span class="pre">protocol.csv</span></code> is created.</p>
+<div class="section" id="csv-format">
+<h3>csv format<a class="headerlink" href="#csv-format" title="Permalink to this headline">¶</a></h3>
+<p>The csv follows the <strong>standard format</strong> of <cite>comma separated values</cite> <a class="footnote-reference" href="#csv-spec" id="id1">[1]</a>.</p>
+<ul class="simple">
+<li>tag</li>
+<li>year</li>
+<li>month</li>
+<li>day</li>
+<li>duration in seconds</li>
+<li>from unixtime</li>
+<li>to unixtime</li>
+<li>description</li>
+</ul>
+<p>It is not neccessary that both duration and from/to are set but if they are those two times spans are validated against each other.</p>
+<div class="section" id="available-tags">
+<h4>available tags<a class="headerlink" href="#available-tags" title="Permalink to this headline">¶</a></h4>
+<p>Tags available in version 0.1 are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">tag string</th>
+<th class="head">meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>e</td>
+<td>Entry</td>
+</tr>
+<tr class="row-odd"><td>h</td>
+<td>Holiday</td>
+</tr>
+<tr class="row-even"><td>c</td>
+<td>Overtime Compensation</td>
+</tr>
+<tr class="row-odd"><td>i</td>
+<td>Illness</td>
+</tr>
+<tr class="row-even"><td>o</td>
+<td>Offset</td>
+</tr>
+</tbody>
+</table>
+<p><cite>offset</cite> is used to add working hours to account.
+When <cite>holiday</cite> is used with duration, holidays are added.</p>
+<table class="docutils footnote" frame="void" id="csv-spec" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Comma-separated_values">https://en.wikipedia.org/wiki/Comma-separated_values</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="xlsx-scheme">
+<h3>xlsx scheme<a class="headerlink" href="#xlsx-scheme" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>excel</cite> file consists of roughly 3 Parts:</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>Header with</dt>
+<dd><ul class="first last">
+<li>Name</li>
+<li>Month</li>
+<li>Overview</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>Body</li>
+<li><dl class="first docutils">
+<dt>Footer with</dt>
+<dd><ul class="first last">
+<li>legend</li>
+<li>infoline containing technical informations like parsing date and so on</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="legacy-formats">
+<h3>Legacy Formats<a class="headerlink" href="#legacy-formats" title="Permalink to this headline">¶</a></h3>
+<p>The predecessor <strong class="program">etime</strong> used two files:</p>
+<ul class="simple">
+<li>the tracker put the data of a month into <code class="file docutils literal"><span class="pre">~/.etime/&lt;YY-MM.elog</span></code> whith each line in the form <code class="docutils literal"><span class="pre">&lt;DD&gt;</span> <span class="pre">&lt;duration</span> <span class="pre">in</span> <span class="pre">hours</span> <span class="pre">in</span> <span class="pre">float&gt;</span> <span class="pre">&lt;description&gt;</span></code></li>
+<li><dl class="first docutils">
+<dt>when parsing two files where created:</dt>
+<dd><ul class="first last">
+<li>a <code class="file docutils literal"><span class="pre">csv</span></code> with each line of the form <code class="docutils literal"><span class="pre">&lt;DD&gt;.&lt;MM&gt;.;&lt;Duration</span> <span class="pre">in</span> <span class="pre">float,</span> <span class="pre">comma</span> <span class="pre">as</span> <span class="pre">separator&gt;;&quot;&lt;description&gt;&quot;</span></code></li>
+<li>a <code class="file docutils literal"><span class="pre">xlsx</span></code> containing a bare, unsorted list with full dates</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Configuration is hard coded. Change the email address the report is sent to in the shell script.</p>
+</div>
+<div class="section" id="components">
+<h2>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="controller">
+<h3>Controller<a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="parser">
+<h3>Parser<a class="headerlink" href="#parser" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>Parser<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4>parser<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<span class="target" id="module-parser"></span><p>parser for <strong class="program">tick</strong></p>
+<dl class="function">
+<dt id="parser.parse_csv_protocol">
+<code class="descclassname">parser.</code><code class="descname">parse_csv_protocol</code><span class="sig-paren">(</span><em>protocol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/parser.html#parse_csv_protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parser.parse_csv_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse a list of <cite>csv</cite> protocol entries into year. return year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>protocol</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.7)"><code class="xref py py-data docutils literal"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">list</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></a>]) – protocol to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-protocol">
+<span id="protocol"></span><h4>protocol<a class="headerlink" href="#module-protocol" title="Permalink to this headline">¶</a></h4>
+<p>This module provides the Month and Year classes</p>
+<dl class="class">
+<dt id="protocol.Month">
+<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Month</code><span class="sig-paren">(</span><em>year=0</em>, <em>month=0</em>, <em>holidays_left=0</em>, <em>working_hours_account=0</em>, <em>hours_worth_working_day=4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the work time protocol for one month</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>holidays_left</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of holidays left, 0 if omitted</li>
+<li><strong>working_hours_account</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – credit of working hours in <em>seconds</em>, 0 if omitted</li>
+<li><strong>yearmonth</strong> – integer of the form [[YY]YY]MM. Current time if omitted. Current year if only month is given. 20th century if first two digits are missing.</li>
+<li><strong>hours_worth_working_day</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of hours a working day is worth
+If only one digit is given it will be padded with a leading 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>InvalidDateException</strong> – raised when the Date given is nonsense.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="protocol.Month.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>tag</em>, <em>day</em>, <em>duration=0</em>, <em>from_unixtime=0</em>, <em>to_unixtime=0</em>, <em>description=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>append an entry to the protocol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – tag</li>
+<li><strong>duration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – duration of work in seconds</li>
+<li><strong>from_unixtime</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – beginning of work in epoch</li>
+<li><strong>to_unixtime</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – ending of work in epoch</li>
+<li><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.7)"><code class="xref py py-data docutils literal"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]) – description</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ConfusingData</strong> – when duration and from/to do are both given and do not match</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#protocol.Month" title="protocol.Month"><code class="xref py py-class docutils literal"><span class="pre">Month</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Month.append_protocol">
+<code class="descname">append_protocol</code><span class="sig-paren">(</span><em>protocol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.append_protocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.append_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>add a list or tuple of entries to the protocol</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#protocol.Month" title="protocol.Month"><code class="xref py py-class docutils literal"><span class="pre">Month</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Month.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a dict with all values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">dict</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Month.get_next">
+<code class="descname">get_next</code><span class="sig-paren">(</span><em>year=None</em>, <em>month=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.get_next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.get_next" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the next Month derived from the current</p>
+<p>holidays left are transferred, working hours account
+is adjusted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>month</strong> – you can give a different month. If omitted next
+month is assumed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#protocol.Month" title="protocol.Month"><code class="xref py py-class docutils literal"><span class="pre">Month</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="protocol.Month.pretty">
+<code class="descname">pretty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Month.pretty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Month.pretty" title="Permalink to this definition">¶</a></dt>
+<dd><p>return object as pretty string</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="protocol.Season">
+<em class="property">class </em><code class="descclassname">protocol.</code><code class="descname">Season</code><span class="sig-paren">(</span><em>t=0</em>, <em>working_hours_account=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Season"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Season" title="Permalink to this definition">¶</a></dt>
+<dd><p>contains a valid chain of Months</p>
+<dl class="method">
+<dt id="protocol.Season.add_month">
+<code class="descname">add_month</code><span class="sig-paren">(</span><em>month</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/protocol.html#Season.add_month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#protocol.Season.add_month" title="Permalink to this definition">¶</a></dt>
+<dd><p>append a protocol to the chain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>protocol</strong> – protocol to add.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – when validation fails</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#protocol.Season" title="protocol.Season"><code class="xref py py-class docutils literal"><span class="pre">Season</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Developer’s Manual</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#files-and-formats">files and formats</a><ul>
+<li><a class="reference internal" href="#csv-format">csv format</a><ul>
+<li><a class="reference internal" href="#available-tags">available tags</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#xlsx-scheme">xlsx scheme</a></li>
+<li><a class="reference internal" href="#legacy-formats">Legacy Formats</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">configuration</a></li>
+<li><a class="reference internal" href="#components">Components</a><ul>
+<li><a class="reference internal" href="#controller">Controller</a></li>
+<li><a class="reference internal" href="#parser">Parser</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api">API</a><ul>
+<li><a class="reference internal" href="#id2">Parser</a><ul>
+<li><a class="reference internal" href="#id3">parser</a></li>
+<li><a class="reference internal" href="#module-protocol">protocol</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="usermanual.html" title="previous chapter">User’s Manual</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Changelog</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/devmanual.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, k.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/devmanual.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
