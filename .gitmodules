@@ -1,0 +1,3 @@
+[submodule "src/holidays"]
+	path = src/holidays
+	url = https://github.com/karlsebal/holidays

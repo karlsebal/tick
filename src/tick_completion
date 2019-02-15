@@ -1,0 +1,52 @@
+_tick() {
+	local cur prev shortopts longopts commands
+
+	shortopts="-h -d -m -y -D -Y -a -V"
+	longopts="--day --month --year --amamedis --version"
+	commands="add parse status report sync undo redo completion"
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# if previous is completion there is no option but
+	# to remove it
+	[[ $prev == completion ]] && {
+		COMPREPLY="remove"
+		return
+	}
+
+	# if previous is date it’s illness or holiday
+	[[ $prev =~ ^[0-9]{1,4}/[0-9]{1,2}/[0-9]{1,2} ]] && {
+		COMPREPLY=($(compgen -W "holidays illness" -- $cur))
+		return
+	}
+
+	# if previous is add it’s holiday or carryover
+	[[ $prev == add ]] && {
+		COMPREPLY=($(compgen -W "holiday carryover" -- $cur))
+		return
+	}
+
+	# if previous is an option or command not yet handled
+	# there is nothing left to complete
+	[[ "$shortopts $longopts $commands holiday carryover illness" =~ $prev ]] && {
+		return
+	}
+
+	# completion
+	case $cur in
+		--*)
+			COMPREPLY=($(compgen -W "$longopts" -- $cur))
+			;;
+		-*)
+			COMPREPLY=($(compgen -W "$longopts $shortopts" -- $cur))
+			;;
+		""|[^-]*)
+			COMPREPLY=($(compgen -W "$commands" -- $cur))
+			;;
+	esac
+}
+
+complete -F _tick tick
+
+# vim: set ai sw=4 ts=4 sts=4 noet ft=sh:

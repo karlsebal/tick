@@ -1,3 +1,9 @@
 *.pyc
 *__pycache__*
+<<<<<<< HEAD
 .idea
+=======
+*.swp
+*.idea
+protocol.xlsx
+>>>>>>> 8ed3c4e6380670531313bbdda57e2709dfb018f2

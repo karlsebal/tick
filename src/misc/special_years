@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# calc specials for $1 to $2 or 1900 to 2100
+
+for i in $(seq ${1:-1900} ${2:-2100}); do ./weekends $i; done | egrep "105|106" -B3

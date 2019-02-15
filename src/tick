@@ -1,66 +1,151 @@
 #!/bin/bash
 
-OUTFILE="$HOME/.tick/protocol.csv"
-OUTDIR="${OUTFILE%/*}"
-PARSER="$HOME/bin/particl"
 
+shopt -s extglob
+set -e
+
+TICKDIR=$HOME/.tick
+
+[ -d "$TICKDIR" ] || {
+	mkdir -p "$TICKDIR"
+}
+
+[ -f $TICKDIR/config ] && {
+	. $TICKDIR/config
+} || {
+	echo $TICKDIR/config not found
+	exit -1
+}
+
+[ ${#OUTDIR} -eq 0 ] && {
+	echo '$OUTDIR not configured'
+	exit -1
+}
+
+[ ${#BINDIR} -eq 0 ] && {
+	echo '$BINDIR not configured'
+	exit -1
+}
+
+[ ${#STATE} -eq 0 ] && {
+	echo '$STATE not configured'
+	exit -1
+}
+
+. $BINDIR/version.py
+
+OUTFILE="$OUTDIR/protocol.csv"
+PARSER="$BINDIR/parser.py"
+HOLIDAYS="$BINDIR/vacation"
+
+
+# check outdir existence
+# create if none
 [[ ! -d $OUTDIR ]] && {
 	mkdir -vp "$OUTDIR" || exit -1
 }
 
+# check outfile existence
+# create if none
 [[ ! -f $OUTFILE ]] && {
 	touch $OUTFILE || exit -1
 }
 
-shopt -s extglob
 
+# give a short usage
 short_help () {
-	echo "usage: ${0##*/} -hadmyDY [command] <time> <description>"
+	echo "usage: ${0##*/} -hadmyDY [command] [comment]"
 }
 
+# give a detailed help
 help() {
 	short_help
 
 	cat <<-EOF
 
+		========
 		options:
+		========
 
 		-h	help
 		
-		-d	set day
-		-m	set month
-		-y	set year
-		-D	set date
-		-Y	set to yesterday
+		-d, --day       set day
+		-m, --month     set month
+		-y, --year      set year
+		-D              set date
+		-Y              set date to yesterday
 
 		Note: -D option is dominant over -dmy. With -Y mixed last given wins.
 
-		-a	set amamedis
+		-a, --amamedis  set amamedis
+
+		-V, --version   print version and exit
 
 
+		=========
 		commands:
+		=========
 
-		<HH[:MM]>			duration
-		<HH:MM>-<HH:MM>		from-to	
-		parse
-		state
+		<HH[:MM]> <:MM>                 duration
+		<HH:MM>-<HH:MM>                 from-to	
+
+
+		<[CC]YY/MM/DD> <h[oliday]/i[llness]>	holiday/illness
+		<[CC]YY/MM/DD>-<[CC]YY/MM/DD> <h/i>		holidays/illness
+        
+        Note: XX/YY/ZZZZ will lead to funny results
+
+
+		add <h[holidays]> <days>         add holidays to account
+		add <c[arryover]> <HH[:MM]>     add carryover
+
+		parse                           parse protocol
+		status                          show month on top
 		report
-		sync
+		sync                            sync protocol to backup location
 
-		undo
-		redo
+		undo                            undo last entry
+		redo                            redo last undo
 
-		completion
+		completion        install shell completion
 
 EOF
 }
 
+# append entry to $OUTFILE
+entry() {
+
+	# feedback
+	printf "\nfor "
+	
+	[[ $identifier == a ]] && {
+		printf "amamedis "
+	} || {
+		printf "euratel "
+	}
+
+	printf "enter at date $date:\n"
+
+	printf "$(bc <<< "scale=2; $duration/3600") hours "
+	printf "($((duration/3600)):$((duration%3600/60)) or "
+	printf "$((duration/60)) minutes) \n"
+	printf "with ${from:-from}-${to:-to not set}"
+	printf "${unix_from:+(}${unix_from:-}${unix_from:+-}${unix_to:-}${unix_to:+)} \n"
+	printf "and comment: $comment \n"
+
+	# entry
+	echo $identifier,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
+}
+
+# command line parsing
+
 # if an option or bunch of options
 # they are parsed into an array
 # if option demands an argument 
-# its read from $1 and $skip_next is increased
+# it’s read from $1 and $skip_next is increased
 # shifts are done for option, bunch of options
 # and parameter demanded by an option
+
 
 # the stripped commandline
 # we will append to this so
@@ -71,10 +156,13 @@ stripped=""
 # number of arguments to be skipped
 skip_next=0
 
+# set identifier to Euratel
+identifier=e
+
 for arg in "$@"; do
 
 	# skip arguments demanded by options
-	# and already shifted
+	# and already parsed
 	[[ $skip_next -gt 0 ]] && {
 		((skip_next--))
 		continue
@@ -86,6 +174,7 @@ for arg in "$@"; do
 	# options parsing
 	# if we encount an option we will unset arg[0]
 	# and move options to $arg[0+n]
+
 
 	# do we have a bunch of options?
 	[[ $arg =~ ^-[^-] ]] && {
@@ -104,6 +193,7 @@ for arg in "$@"; do
 		unset arg[0]
 	}
 
+
 	# now we have $arg clean which now contains
 	# either a command or command parameter or null
 	# $arg[@] needs cleanup to work properly which is
@@ -113,12 +203,14 @@ for arg in "$@"; do
 	# as single arguments where the loop is executed
 	# only once. 
 	# When an option occures demanding a second parameter
-	# always $1 is used, shifted and skip_next is increased. 
+	# always $1 is used and skip_next is increased. 
 
 	# for $arg[@] cleanup
 	idx=1
 
 	# only if $arg[0] is unset there are options to handle
+	# short options are missing the leading dash since parsing to $arg
+	# where long options kept their leading dashes
 	[[ ! ${arg[0]} ]] && {
 		for option in "${arg[@]}"; do
 				case $option in
@@ -129,6 +221,11 @@ for arg in "$@"; do
 						;;
 
 					h|\?|--help) help
+						;;
+
+					V|--version)
+						echo ${0##*/} $VERSION
+						exit 0
 						;;
 
 					d|--day) 
@@ -163,17 +260,18 @@ for arg in "$@"; do
 
 					Y|--yesterday) 
 						date=$(date -d 'yesterday' +%F)
-						echo
 						;;
 
-					a|--amamedis) echo set amamedis
-						amamedis=true
+					a|--amamedis) 
+						identifier=a
 						;;
 
 					"") # ignore empty
 						;;
 
-					*) echo unrecognized option: \"-$option\"
+					*) 
+						echo unrecognized option: \"-$option\"
+						exit -1
 						;;
 
 				esac
@@ -187,6 +285,9 @@ for arg in "$@"; do
 	}
 done
 
+# now after option parsing $stripped should contain only
+# command and argument
+
 # assemble date
 # if date is set, other options -dmy are ignored.
 if [[ $date ]]; then
@@ -196,25 +297,29 @@ else
 	date=$(date -d "${year:-$(date +%y)}${month:-$(date +%m)}${day:-$(date +%d)}" +%F)
 fi
 
+# exit on error while setting date
 [[ $? -ne 0 ]] && {
 	echo error setting date
 	exit -1
 }
 
-echo amamedis is ${amamedis:-not set}
 
-# we are done parsing the options.
-# parse command
+# we are done parsing the options and setting the date.
 case ${stripped[1]} in
 
-	"") ;; # catch empty
+	# catch empty
+	"") 
+		help
+		;; 
 
+	# duration given
 	*([0-9])*(:)*([0-9]))
+
 		duration=${stripped[1]}
 
 		[[ $duration =~ : ]] && {
-			[[ ${a:0:1} == : ]] && { 
-				minutes=$duration
+			[[ ${duration:0:1} == : ]] && { 
+				minutes=${duration:1}
 				hours=0
 			} || {
 				hours=${duration%%:*}
@@ -225,8 +330,7 @@ case ${stripped[1]} in
 			minutes=0
 		}
 
-		echo hours:$hours minutes:$minutes
-		durations=$((hours*3600+minutes*60))
+		duration=$((hours*3600+minutes*60))
 
 		unset from
 		unset to
@@ -236,9 +340,10 @@ case ${stripped[1]} in
 
 		comment=${stripped[@]}
 
-		execute=entry
+		entry
 		;;
 
+	# from-to given
 	*([0-9])*(:)*([0-9])-*([0-9])*(:)*([0-9]))
 		fromto=${stripped[1]}
 
@@ -258,38 +363,203 @@ case ${stripped[1]} in
 			exit -1
 		}
 
-		durations=$((unix_to-unix_from))
+		# correct day transition
+		[ $unix_to -lt $unix_from ] && {
+			((unix_to+=86400))
+		}
+
+		duration=$((unix_to-unix_from))
 		
 		unset stripped[1]
 		comment=${stripped[@]}
-		execute=entry
-		;;
 
-	parse)
-		execute=parse
-		;;
-
-	report) echo report.
-		execute=report
+		entry
 		;;
 	
-	*) echo command not found: ${stripped[@]}
-esac
+	# holiday(s)/illness given
+	# both need tag
+	+([0-9])/+([0-9])/+([0-9])*(-+([0-9])/+([0-9])/+([0-9])))
 
+		if [[ ${stripped[2]} =~ ^h ]]; then
+			tag=h
+		elif [[ ${stripped[2]} =~ ^i ]]; then
+			tag=i
+		else
+			echo either \"holiday\" or \"illness\" must be given
+			exit -1
+		fi
 
-# command execution
+		# proceed testing single or multiple day(s)
+		;;&
 
-case $execute in
-	entry)
-		echo $date $(bc <<< "scale=2; $durations/3600")h \($durations\) $from-$to \($unix_from-$unix_to\) $comment 
-		echo e,$(date -d "$date" +%Y,%m,%d),$durations,$unix_from,$unix_to,\"$comment\" | tee -a $OUTFILE
+	# holiday/illness given
+	+([0-9])/+([0-9])/+([0-9]))
+        
+		# remove slashes
+		day=${stripped[1]//\/}
+
+        # sanitize date
+        # prepend leading century if neccessary
+		if [ ${#day} -eq 6 ]; then
+            day=$(date +%C)$day
+        elif [ ${#day} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		$HOLIDAYS $day $day $STATE $tag $OUTFILE
 		;;
+		
+	# holidays given
+	+([0-9])/+([0-9])/+([0-9])-+([0-9])/+([0-9])/+([0-9]))
+
+        # remove slashes
+        stripped[1]=${stripped[1]//\/}
+
+        # get from and to
+		from=${stripped[1]%-*}
+		to=${stripped[1]#*-}
+
+        # sanitize date
+        # prepend leading century if neccessary
+		if [ ${#from} -eq 6 ]; then
+            from=$(date +%C)$from
+        elif [ ${#from} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		if [ ${#to} -eq 6 ]; then
+            to=$(date +%C)$to
+        elif [ ${#to} -ne 8 ]; then
+			echo date should be 6 or 8 digits
+			exit -1
+        fi
+
+		$HOLIDAYS $from $to $STATE $tag $OUTFILE
+		;;
+	
+	# add holiday or carryover
+	add)
+		
+		# figure out identifier
+		if [[ ${stripped[2]} =~ ^h ]]; then
+			identifier=h
+			comment=Urlaubstage
+		elif [[ ${stripped[2]} =~ ^c ]]; then
+			identifier=c
+			comment=Übertrag
+		else
+			echo ${stripped[2]} is unknown
+			exit -1
+		fi
+
+		# make sure value is given
+		[[ ${#stripped[3]} -eq 0 || ${stripped[3]} == : ]] && {
+			echo no value given
+			exit -1
+		}
+
+		if [[ $identifier == h ]]; then
+			# check value given
+			[[ ${stripped[3]} =~ [^[:digit:]] ]] && {
+				echo value for holidays must be integer
+				exit -1
+			} || {
+				duration=${stripped[3]}
+			}
+			echo add $duration holidays
+		else
+			# get duration
+			[[ ${stripped[3]} =~ ^[[:digit:]]*:{0,1}[[:digit:]]*$ ]] || {
+				echo value must be "[HH]:[MM]"
+				exit -1
+			}
+
+			# containing a colon hours and minutes are given
+			[[ ${stripped[3]} =~ : ]] && {
+				hours=${stripped[3]%:*}
+				minutes=${stripped[3]#*:}
+				duration=$(( (hours * 60 + minutes) * 60 ))
+
+			# if not so duration is hours
+			} || {
+				duration=${stripped[3]}
+				duration=$((duration*3600))
+				unset minutes
+				hours=${stripped[3]}
+			}
+
+			echo add ${hours:-0}h ${minutes:-0}\' working hours
+		fi
+
+
+		# those entries are made with day set to 0
+		echo $identifier,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
+		;;
+
 	parse)
-		$PARSER $OUTFILE
+		$PARSER --csv-file $OUTFILE parse $STATE
 		;;
-	*)
-		echo nothing to do
+
+	report) 
+		echo not implemented yet
+		exit 1
+		;;
+
+	sync)
+		echo not implemented yet
+		exit 1
+		;;
+
+	status)
+		$PARSER --csv-file $OUTFILE status $STATE
+		;;
+
+	undo)
+		echo not implemented yet
+		exit 1
+		;;
+	
+	redo)
+		echo not implemented yet
+		exit 1
+		;;
+	
+	completion)
+		if [[ ${stripped[2]} == "install" ]]; then
+			echo ". $BINDIR/tick_completion" >> ~/.bash_completion
+			echo completion sourced in ~/.bash_completion
+			exit
+		elif [[ ${stripped[2]} == "remove" ]]; then
+			# we gonna go until all is removed
+			# in case of multiple installs
+			set +e
+			until [ $? -ne 0 ]; do
+				ed -s ~/.bash_completion <<-EOF 
+				/^\..*tick_completion$
+				d
+				w
+				q
+				EOF
+			done
+			set -e
+			echo completion removed in ~/.bash_completion
+			exit 
+		elif [[ ! ${stripped[2]} ]]; then
+			echo either \"remove\" or \"install\" is required
+			exit 1
+		else 
+			echo ${stripped[2]} is unknown
+			exit 1
+		fi
+		;;
+
+	
+	*) 
+		echo command not found: ${stripped[@]}
+		exit -1
 		;;
 esac
 
-# vim: ai sw=4 sts=4 ts=4 noexpandtab
+# vim: set ai sw=4 sts=4 ts=4 noexpandtab ft=sh:

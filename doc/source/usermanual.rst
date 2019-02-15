@@ -7,16 +7,32 @@ CLI
 Options
 ^^^^^^^
 
--h, --help    help
--y, --year    set year
--m, --month	  set month
--d, --day	  set day
--D, --date	  set date
--Y, --yesterday   set date to yesterday
--L, --lastmonth   set month to ``last month``
+.. option:: -h, --help    
+
+help
+
+.. option:: -y, --year <year>
+
+set year
+
+.. option:: -m, --month <month>
+
+set month
+
+.. option:: -d, --day <dom>
+
+set day of month
+
+.. option:: -D, --date
+
+set date as if set via ``date -d``
+
+.. option:: -Y, --yesterday   
+
+set date to yesterday
 
 .. note::
-   The date given via :option:`-D` is parsed directly into :program:`date`. So simulating the option :option:`-Y` via ``-D yesterday`` is absolutely possible.
+   The date given via :option:`-D` is parsed directly into :program:`date -d`. 
 
 Commands
 ^^^^^^^^
