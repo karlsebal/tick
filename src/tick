@@ -26,8 +26,9 @@ TICKDIR=$HOME/.tick
 	# province for holiday calculation
 	STATE=
 
-	# venv to use
-	#VENV=
+	# Python bin to use.
+	# Optional. If not set, shebang will make the call.
+	#PYTHON_BIN=
 EOT
 
 	cat <<-EOT
@@ -55,7 +56,7 @@ EOT
 . $BINDIR/version.py
 
 OUTFILE="$OUTDIR/protocol.csv"
-PARSER="$BINDIR/parser.py"
+PARSER="$PYTHON_BIN $BINDIR/parser.py"
 HOLIDAYS="$BINDIR/vacation"
 
 
