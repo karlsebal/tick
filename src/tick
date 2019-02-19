@@ -1,20 +1,41 @@
 #!/bin/bash
 
-
 shopt -s extglob
 set -e
 
 TICKDIR=$HOME/.tick
 
 [ -d "$TICKDIR" ] || {
-	mkdir -p "$TICKDIR"
+	mkdir -vp "$TICKDIR"
 }
 
 [ -f $TICKDIR/config ] && {
 	. $TICKDIR/config
 } || {
-	echo $TICKDIR/config not found
-	exit -1
+	# create config
+	BINDIR=$(readlink -f $0)
+	BINDIR=${BINDIR%/*}
+
+	cat > $TICKDIR/config <<-EOT
+	# output directory
+	OUTDIR=$TICKDIR
+
+	# tick bin directory
+	BINDIR=$BINDIR
+
+	# province for holiday calculation
+	STATE=
+
+	# venv to use
+	#VENV=
+EOT
+
+	cat <<-EOT
+	$TICKDIR/config was not found as has been created. 
+	Please adjust \$STATE variable.
+EOT
+	
+	exit 1 
 }
 
 [ ${#OUTDIR} -eq 0 ] && {
@@ -28,8 +49,7 @@ TICKDIR=$HOME/.tick
 }
 
 [ ${#STATE} -eq 0 ] && {
-	echo '$STATE not configured'
-	exit -1
+	printf 'WARNING: $STATE not configured\n\n'
 }
 
 . $BINDIR/version.py
