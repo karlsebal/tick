@@ -26,9 +26,14 @@ TICKDIR=$HOME/.tick
 	# province for holiday calculation
 	STATE=
 
-	# Python bin to use.
-	# Optional. If not set, shebang will make the call.
-	#PYTHON_BIN=
+	# Optional: Command activating the venv.
+	# This may happen by sourcing an \`activate\` file
+	# or activating via \`conda activate venv\`.
+	# If the activation of an environment requires
+	# more than one command, the list is given as
+	# an array
+	#VENV_CMD=
+	#VENV_CMD=("command1" "command2")
 EOT
 
 	cat <<-EOT
@@ -53,10 +58,20 @@ EOT
 	printf 'WARNING: $STATE not configured\n\n'
 }
 
+# version.py should be shell compliant
 . $BINDIR/version.py
 
+# python venv if set
+[ ${#VENV_CMD} -ne 0 ] && {
+	for command in "${VENV_CMD[@]}"
+	do
+		$command
+	done
+}
+
+
 OUTFILE="$OUTDIR/protocol.csv"
-PARSER="$PYTHON_BIN $BINDIR/parser.py"
+PARSER="$BINDIR/parser.py"
 HOLIDAYS="$BINDIR/vacation"
 
 
