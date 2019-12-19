@@ -46,12 +46,12 @@ EOT
 
 [ ${#OUTDIR} -eq 0 ] && {
 	echo '$OUTDIR not configured'
-	exit -1
+	exit 1
 }
 
 [ ${#BINDIR} -eq 0 ] && {
 	echo '$BINDIR not configured'
-	exit -1
+	exit 1
 }
 
 [ ${#STATE} -eq 0 ] && {
@@ -78,13 +78,13 @@ HOLIDAYS="$BINDIR/vacation"
 # check outdir existence
 # create if none
 [[ ! -d $OUTDIR ]] && {
-	mkdir -vp "$OUTDIR" || exit -1
+	mkdir -vp "$OUTDIR" || exit 1
 }
 
 # check outfile existence
 # create if none
 [[ ! -f $OUTFILE ]] && {
-	touch $OUTFILE || exit -1
+	touch $OUTFILE || exit 1
 }
 
 
@@ -307,7 +307,7 @@ for arg in "$@"; do
 
 					*) 
 						echo unrecognized option: \"-$option\"
-						exit -1
+						exit 1
 						;;
 
 				esac
@@ -336,7 +336,7 @@ fi
 # exit on error while setting date
 [[ $? -ne 0 ]] && {
 	echo error setting date
-	exit -1
+	exit 1
 }
 
 
@@ -391,12 +391,12 @@ case ${stripped[1]} in
 
 		unix_from=$(date -d "$from" +%s) || {
 			echo error setting unix_from
-			exit -1
+			exit 1
 		}
 
 		unix_to=$(date -d "$to" +%s) || {
 			echo error setting unix_to
-			exit -1
+			exit 1
 		}
 
 		# correct day transition
@@ -422,7 +422,7 @@ case ${stripped[1]} in
 			tag=i
 		else
 			echo either \"holiday\" or \"illness\" must be given
-			exit -1
+			exit 1
 		fi
 
 		# proceed testing single or multiple day(s)
@@ -440,7 +440,7 @@ case ${stripped[1]} in
             day=$(date +%C)$day
         elif [ ${#day} -ne 8 ]; then
 			echo date should be 6 or 8 digits
-			exit -1
+			exit 1
         fi
 
 		$HOLIDAYS $day $day $STATE $tag $OUTFILE
@@ -462,14 +462,14 @@ case ${stripped[1]} in
             from=$(date +%C)$from
         elif [ ${#from} -ne 8 ]; then
 			echo date should be 6 or 8 digits
-			exit -1
+			exit 1
         fi
 
 		if [ ${#to} -eq 6 ]; then
             to=$(date +%C)$to
         elif [ ${#to} -ne 8 ]; then
 			echo date should be 6 or 8 digits
-			exit -1
+			exit 1
         fi
 
 		$HOLIDAYS $from $to $STATE $tag $OUTFILE
@@ -487,20 +487,20 @@ case ${stripped[1]} in
 			comment=Übertrag
 		else
 			echo ${stripped[2]} is unknown
-			exit -1
+			exit 1
 		fi
 
 		# make sure value is given
 		[[ ${#stripped[3]} -eq 0 || ${stripped[3]} == : ]] && {
 			echo no value given
-			exit -1
+			exit 1
 		}
 
 		if [[ $identifier == h ]]; then
 			# check value given
 			[[ ${stripped[3]} =~ [^[:digit:]] ]] && {
 				echo value for holidays must be integer
-				exit -1
+				exit 1
 			} || {
 				duration=${stripped[3]}
 			}
@@ -509,7 +509,7 @@ case ${stripped[1]} in
 			# get duration
 			[[ ${stripped[3]} =~ ^[[:digit:]]*:{0,1}[[:digit:]]*$ ]] || {
 				echo value must be "[HH]:[MM]"
-				exit -1
+				exit 1
 			}
 
 			# containing a colon hours and minutes are given
@@ -593,8 +593,8 @@ case ${stripped[1]} in
 
 	
 	*) 
-		echo command not found: ${stripped[@]}
-		exit -1
+		echo command not found: "${stripped[@]}"
+		exit 1
 		;;
 esac
 

@@ -207,7 +207,7 @@
   // The right-associative version of reduce, also known as `foldr`.
   _.reduceRight = _.foldr = createReduce(-1);
 
-  // Return the first value which passes a truth test. Aliased as `detect`.
+  // Return the first value which passes a truth test_protocol.py. Aliased as `detect`.
   _.find = _.detect = function(obj, predicate, context) {
     var key;
     if (isArrayLike(obj)) {
@@ -218,7 +218,7 @@
     if (key !== void 0 && key !== -1) return obj[key];
   };
 
-  // Return all the elements that pass a truth test.
+  // Return all the elements that pass a truth test_protocol.py.
   // Aliased as `select`.
   _.filter = _.select = function(obj, predicate, context) {
     var results = [];
@@ -229,12 +229,12 @@
     return results;
   };
 
-  // Return all the elements for which a truth test fails.
+  // Return all the elements for which a truth test_protocol.py fails.
   _.reject = function(obj, predicate, context) {
     return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
-  // Determine whether all of the elements match a truth test.
+  // Determine whether all of the elements match a truth test_protocol.py.
   // Aliased as `all`.
   _.every = _.all = function(obj, predicate, context) {
     predicate = cb(predicate, context);
@@ -247,7 +247,7 @@
     return true;
   };
 
-  // Determine if at least one element in the object matches a truth test.
+  // Determine if at least one element in the object matches a truth test_protocol.py.
   // Aliased as `any`.
   _.some = _.any = function(obj, predicate, context) {
     predicate = cb(predicate, context);
@@ -623,7 +623,7 @@
     };
   }
 
-  // Returns the first index on an array-like that passes a predicate test
+  // Returns the first index on an array-like that passes a predicate test_protocol.py
   _.findIndex = createPredicateIndexFinder(1);
   _.findLastIndex = createPredicateIndexFinder(-1);
 
@@ -1009,7 +1009,7 @@
   // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
   _.extendOwn = _.assign = createAssigner(_.keys);
 
-  // Returns the first key on an object that passes a predicate test
+  // Returns the first key on an object that passes a predicate test_protocol.py
   _.findKey = function(obj, predicate, context) {
     predicate = cb(predicate, context);
     var keys = _.keys(obj), key;
