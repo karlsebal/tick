@@ -1,11 +1,28 @@
 Changelog
-*********
+=========
 
-.. versionadded:: 0.1
-   Initial Version.
+V0.6.1
+------
 
-.. versionadded:: 0.6
-   deployment
-   tick can be invoked via symlink
+Since the tool is productive already we leave alpha and skip beta state.
 
-.. vim: set ai sts=3 sw=3 ts=3 expandtab:
+added
+.....
+
+* deployment
+* RTD config
+
+changed
+.......
+
+* do not push doc build
+
+V0.5a.4
+-------
+
+Initial version evolved from ``etime``.
+
+* proper config file
+* add vacation, illness etc.
+* calculate working days for the year according to province
+* excel output
