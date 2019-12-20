@@ -12,6 +12,11 @@ DEST="$(realpath $*)"
 
 cd src
 
+[ $(ls holidays|wc -l) -eq 0 ] && {
+  printf "\n\n%s/holidays is empty. Did you properly initialize the submodule?" "$(pwd)"
+  exit 1
+}
+
 rsync -r holidays tick vacation version.py tick_completion requirements.txt protocol.py parser.py "$DEST"
 
 cd "$DEST"

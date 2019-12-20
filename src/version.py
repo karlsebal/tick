@@ -1,2 +1,2 @@
 # keep shell compatible
-VERSION='0.5.4alpha'
+VERSION='0.6'
