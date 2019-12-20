@@ -18,7 +18,7 @@ TICKDIR=$HOME/.tick
 
 	cat > $TICKDIR/config <<-EOT
 	# output directory
-	OUTDIR=$TICKDIR
+	WORKDIR=$TICKDIR
 
 	# tick bin directory
 	BINDIR=$BINDIR
@@ -44,8 +44,8 @@ EOT
 	exit 1 
 }
 
-[ ${#OUTDIR} -eq 0 ] && {
-	echo '$OUTDIR not configured'
+[ ${#WORKDIR} -eq 0 ] && {
+	echo '$WORKDIR not configured'
 	exit 1
 }
 
@@ -70,21 +70,21 @@ EOT
 }
 
 
-OUTFILE="$OUTDIR/protocol.csv"
+PROTOCOL_FILE="$WORKDIR/protocol.csv"
 PARSER="$BINDIR/parser.py"
 HOLIDAYS="$BINDIR/vacation"
 
 
 # check outdir existence
 # create if none
-[[ ! -d $OUTDIR ]] && {
-	mkdir -vp "$OUTDIR" || exit 1
+[[ ! -d $WORKDIR ]] && {
+	mkdir -vp "$WORKDIR" || exit 1
 }
 
 # check outfile existence
 # create if none
-[[ ! -f $OUTFILE ]] && {
-	touch $OUTFILE || exit 1
+[[ ! -f $PROTOCOL_FILE ]] && {
+	touch $PROTOCOL_FILE || exit 1
 }
 
 
@@ -148,7 +148,7 @@ help() {
 EOF
 }
 
-# append entry to $OUTFILE
+# append entry to $PROTOCOL_FILE
 entry() {
 
 	# feedback
@@ -160,7 +160,7 @@ entry() {
 		printf "euratel "
 	}
 
-	printf "enter at date $date:\n"
+	printf "enter at date: %s \n" "$date"
 
 	printf "$(bc <<< "scale=2; $duration/3600") hours "
 	printf "($((duration/3600)):$((duration%3600/60)) or "
@@ -170,7 +170,7 @@ entry() {
 	printf "and comment: $comment \n"
 
 	# entry
-	echo $identifier,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
+	echo $identifier,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
 }
 
 # command line parsing
@@ -443,7 +443,7 @@ case ${stripped[1]} in
 			exit 1
         fi
 
-		$HOLIDAYS $day $day $STATE $tag $OUTFILE
+		$HOLIDAYS $day $day $STATE $tag $PROTOCOL_FILE
 		;;
 		
 	# holidays given
@@ -472,7 +472,7 @@ case ${stripped[1]} in
 			exit 1
         fi
 
-		$HOLIDAYS $from $to $STATE $tag $OUTFILE
+		$HOLIDAYS $from $to $STATE $tag $PROTOCOL_FILE
 		;;
 	
 	# add holiday or carryover
@@ -531,11 +531,11 @@ case ${stripped[1]} in
 
 
 		# those entries are made with day set to 0
-		echo $identifier,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $OUTFILE
+		echo $identifier,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
 		;;
 
 	parse)
-		$PARSER --csv-file $OUTFILE parse $STATE
+		$PARSER --csv-file $PROTOCOL_FILE parse $STATE
 		;;
 
 	report) 
@@ -549,7 +549,7 @@ case ${stripped[1]} in
 		;;
 
 	status)
-		$PARSER --csv-file $OUTFILE status $STATE
+		$PARSER --csv-file $PROTOCOL_FILE status $STATE
 		;;
 
 	undo)

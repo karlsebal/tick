@@ -76,11 +76,11 @@ class TestMonth(unittest.TestCase):
         month = Month(0, 0, 10, 0, 4)
 
         for entry in test_entries:
-            print(month.pretty())
-            print('append %r' % entry)
+            # print(month.pretty())
+            # print('append %r' % entry)
             month.append(*entry)
 
-        print(month.pretty())
+        # print(month.pretty())
 
         # holidays okay?
         # we started with 10, added 2, spent 1
@@ -127,19 +127,21 @@ class TestMonth(unittest.TestCase):
 
     def test_get_next(self):
         m = Month(year=2000, month=12,
-                  holidays_left=10, working_hours_account=0, hours_worth_working_day=4)
+                  holidays_left=10, working_hours_account=0, hours_worth_working_day=4,
+                  state='SN')
 
-        m.append('e', 1, 50, None, None, 'bla')
+        m.append('e', 1, 50, None, None, 'Test: 50 s')
         m2 = m.get_next()
         self.assertEqual(m2.month, 1)
         self.assertEqual(m2.year, 2001)
-        # 246 working days in 2000 * 4 * 3600 /12 on target and 50 seconds on account
-        self.assertEqual(m2.working_hours_account, - (246 * 4 * 3600 / 12) + 50)
+        # 251 working days in 2000 * 4 * 3600 /12 on target and 50 seconds on account
+        working_seconds_2000 = 250 * 4 * 3600 / 12
+        self.assertEqual(m2.working_hours_account, - working_seconds_2000 + 50)
 
         m2 = m.get_next(month=2, year=2005)
         self.assertEqual(m2.month, 2)
         self.assertEqual(m2.year, 2005)
-        self.assertEqual(m2.working_hours_account, - (246 * 4 * 3600 / 12) + 50)
+        self.assertEqual(m2.working_hours_account, - working_seconds_2000 + 50)
 
     def test_properties(self):
         m = Month(hours_worth_working_day=4, year=2012, state='sn')

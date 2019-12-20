@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+[ $# -eq 0 ] && {
+  printf "usage: %s <install_dir>\n" "$(basename $0)"
+  exit 1
+}
+
+OLDWD="$(pwd)"
+DEST="$(realpath $*)"
+
+cd src
+
+rsync -r holidays tick vacation version.py tick_completion requirements.txt protocol.py parser.py "$DEST"
+
+cd "$DEST"
+
+virtualenv -p python3.7 venv
+. venv/bin/activate
+
+pip install -r requirements.txt
+deactivate
+
+cd "$OLDWD"
