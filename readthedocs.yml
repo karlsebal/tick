@@ -1,0 +1,18 @@
+...
+version: 2
+
+sphinx:
+  configuration: docs/source/conf.py
+
+formats: all
+
+python:
+  version: 3.7
+  install:
+    - requirements: docs/requirements.txt
+
+submodules:
+  include: all
+  recursive: true
+---
+# vim: set ai sw=2 ts=2 sts=2 et:

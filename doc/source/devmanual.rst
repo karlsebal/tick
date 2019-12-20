@@ -96,6 +96,9 @@ Controller
 Parser
 ------
 
+Holidays
+--------
+
 API
 ===
 
@@ -112,6 +115,12 @@ protocol
 ^^^^^^^^
 
 .. automodule:: protocol
+   :members:
+
+holidays
+^^^^^^^^
+
+.. automodule:: holidays.holidays
    :members:
 
 
