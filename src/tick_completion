@@ -1,8 +1,8 @@
 _tick() {
 	local cur prev shortopts longopts commands
 
-	shortopts="-h -d -m -y -D -Y -a -V"
-	longopts="--day --month --year --amamedis --version"
+	shortopts="-h -d -m -y -D -Y -V"
+	longopts="--day --month --year --version"
 	commands="add parse status report sync undo redo completion"
 
 	cur=${COMP_WORDS[COMP_CWORD]}

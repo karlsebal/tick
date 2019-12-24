@@ -115,8 +115,6 @@ help() {
 
 		Note: -D option is dominant over -dmy. With -Y mixed last given wins.
 
-		-a, --amamedis  set amamedis
-
 		-V, --version   print version and exit
 
 
@@ -154,14 +152,6 @@ EOF
 entry() {
 
 	# feedback
-	printf "\nfor "
-	
-	[[ $identifier == a ]] && {
-		printf "amamedis "
-	} || {
-		printf "euratel "
-	}
-
 	printf "enter at date: %s \n" "$date"
 
 	printf "$(bc <<< "scale=2; $duration/3600") hours "
@@ -172,7 +162,7 @@ entry() {
 	printf "and comment: $comment \n"
 
 	# entry
-	echo $identifier,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
+	echo $tag,$(date -d "$date" +%Y,%m,%d),$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
 }
 
 # command line parsing
@@ -194,8 +184,8 @@ stripped=""
 # number of arguments to be skipped
 skip_next=0
 
-# set identifier to Euratel
-identifier=e
+# set tag to Euratel
+tag=e
 
 for arg in "$@"; do
 
@@ -298,10 +288,6 @@ for arg in "$@"; do
 
 					Y|--yesterday) 
 						date=$(date -d 'yesterday' +%F)
-						;;
-
-					a|--amamedis) 
-						identifier=a
 						;;
 
 					"") # ignore empty
@@ -480,12 +466,12 @@ case ${stripped[1]} in
 	# add holiday or carryover
 	add)
 		
-		# figure out identifier
+		# figure out tag
 		if [[ ${stripped[2]} =~ ^h ]]; then
-			identifier=h
+			tag=h
 			comment=Urlaubstage
 		elif [[ ${stripped[2]} =~ ^c ]]; then
-			identifier=c
+			tag=c
 			comment=Übertrag
 		else
 			echo ${stripped[2]} is unknown
@@ -498,7 +484,7 @@ case ${stripped[1]} in
 			exit 1
 		}
 
-		if [[ $identifier == h ]]; then
+		if [[ $tag == h ]]; then
 			# check value given
 			[[ ${stripped[3]} =~ [^[:digit:]] ]] && {
 				echo value for holidays must be integer
@@ -533,7 +519,7 @@ case ${stripped[1]} in
 
 
 		# those entries are made with day set to 0
-		echo $identifier,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
+		echo $tag,$(date -d "$date" +%Y,%m),0,$duration,$unix_from,$unix_to,\"$comment\" >> $PROTOCOL_FILE
 		;;
 
 	parse)

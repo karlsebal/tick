@@ -1,6 +1,15 @@
 Changelog
 =========
 
+V0.7
+----
+
+removed
+.......
+
+* amamedis was never used much less evaluated.
+  And a proper implementation of multiple companies is not necessary at the moment.
+
 V0.6.1
 ------
 
